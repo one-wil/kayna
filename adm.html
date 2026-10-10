@@ -11115,5 +11115,78 @@ window.caClearSessionDateFilter=function(){
 
 
 
+
+<style id="hidden-tabs-shimmer-arrow">
+/* سهم لامع يلفت الانتباه إلى وجود تبويبات إضافية في شريط الأدوات السفلي */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed !important;
+    }
+    .sidebar.has-hidden-tabs::after {
+        content: "‹";
+        position: absolute;
+        left: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 25px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        color: #fff;
+        font: 900 32px/1 Arial, sans-serif;
+        background: linear-gradient(135deg, rgba(72,149,239,.96), rgba(114,9,183,.96));
+        box-shadow: 0 0 8px rgba(72,149,239,.7), 0 0 18px rgba(114,9,183,.55);
+        pointer-events: none;
+        z-index: 3;
+        animation: hiddenTabsArrowGlow 1.15s ease-in-out infinite;
+    }
+    .sidebar.has-hidden-tabs::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 34px;
+        border-radius: 0 10px 10px 0;
+        background: linear-gradient(90deg, rgba(72,149,239,.26), rgba(72,149,239,0));
+        pointer-events: none;
+        z-index: 2;
+        animation: hiddenTabsEdgeShine 1.15s ease-in-out infinite;
+    }
+}
+@keyframes hiddenTabsArrowGlow {
+    0%, 100% { opacity: .65; filter: brightness(1); box-shadow: 0 0 5px rgba(72,149,239,.45); }
+    50% { opacity: 1; filter: brightness(1.5); box-shadow: 0 0 12px rgba(72,149,239,.95), 0 0 24px rgba(114,9,183,.8); }
+}
+@keyframes hiddenTabsEdgeShine {
+    0%, 100% { opacity: .45; }
+    50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sidebar.has-hidden-tabs::before,
+    .sidebar.has-hidden-tabs::after { animation: none !important; }
+}
+</style>
+<script id="hidden-tabs-overflow-detection">
+(function () {
+    function updateHiddenTabsArrow() {
+        var sidebar = document.querySelector('.sidebar');
+        var menu = sidebar && sidebar.querySelector('.sidebar-menu');
+        if (!sidebar || !menu || window.innerWidth > 768) {
+            if (sidebar) sidebar.classList.remove('has-hidden-tabs');
+            return;
+        }
+        sidebar.classList.toggle('has-hidden-tabs', menu.scrollWidth > menu.clientWidth + 2);
+    }
+    window.addEventListener('load', updateHiddenTabsArrow, { once: true });
+    window.addEventListener('resize', updateHiddenTabsArrow);
+    document.addEventListener('DOMContentLoaded', updateHiddenTabsArrow);
+    window.addEventListener('orientationchange', updateHiddenTabsArrow);
+    setTimeout(updateHiddenTabsArrow, 500);
+})();
+</script>
+
 </body>
 </html>
