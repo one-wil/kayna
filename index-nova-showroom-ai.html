@@ -14378,3 +14378,60 @@ body a:not(.btn):not(button) { color: #70520A; }
   input::placeholder, textarea::placeholder { text-shadow: none !important; }
 }
 </style>
+
+<style id="nova-final-contrast-centering-v3">
+/* NOVA: separate similar tones and keep checkout copy highly readable */
+#page2, #page2 .smart-checkout-page { color:#171717 !important; }
+#page2 .smart-checkout-title,
+#page2 #smartCheckoutIntro,
+#page2 .smart-checkout-title .smart-kicker,
+#page2 .smart-checkout-title h1,
+#page2 #smartCheckoutIntro .smart-kicker,
+#page2 #smartCheckoutIntro h1 {
+  text-align:center !important;
+  width:100% !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  justify-content:center !important;
+}
+#page2 .smart-checkout-title h1,
+#page2 #smartCheckoutIntro h1 {
+  display:block !important;
+  color:#171717 !important;
+  -webkit-text-fill-color:#171717 !important;
+  text-shadow:none !important;
+  line-height:1.5 !important;
+}
+#page2 .smart-checkout-title .smart-kicker,
+#page2 #smartCheckoutIntro .smart-kicker {
+  color:#70520A !important;
+  -webkit-text-fill-color:#70520A !important;
+  text-shadow:none !important;
+}
+/* Clear visual distinction between cards, fields, borders and supporting text */
+#page2 input, #page2 select, #page2 textarea,
+#page2 .smart-input, #page2 .smart-field input,
+#page2 .smart-field select, #page2 .smart-field textarea {
+  background:#FFFFFF !important;
+  color:#171717 !important;
+  -webkit-text-fill-color:#171717 !important;
+  border:1.5px solid #9A7A26 !important;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.06) !important;
+}
+#page2 input::placeholder, #page2 textarea::placeholder {
+  color:#625B50 !important; opacity:1 !important; -webkit-text-fill-color:#625B50 !important;
+}
+#page2 label, #page2 p, #page2 small, #page2 .muted,
+#page2 .text-muted, #page2 .delivery-description,
+#page2 .smart-field label {
+  color:#40382C !important; opacity:1 !important;
+}
+#page2 .smart-section, #page2 .smart-card,
+#page2 .smart-delivery-option, #page2 .delivery-option {
+  border-color:#B99A4A !important;
+}
+#page2 button, #page2 .smart-button {
+  text-shadow:none !important;
+}
+#page2 .smart-checkout-title { display:flex !important; flex-direction:column !important; align-items:center !important; }
+</style>
