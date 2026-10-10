@@ -14155,3 +14155,77 @@ header .header-content{min-height:68px!important}
 }
 body { color: #171717; background: linear-gradient(135deg,#FFFFFF 0%,#FBFAF7 55%,#F1E8D2 100%); }
 </style>
+
+<style id="nova-text-contrast-accessibility-v2">
+/* تحسين التباين والقراءة مع الإبقاء على الهوية الذهبية والفاخرة */
+:root {
+  --nova-text-main: #171717;
+  --nova-text-muted: #51483A;
+  --nova-gold-readable: #70520A;
+  --nova-gold-light: #F0D778;
+}
+html, body { color: var(--nova-text-main); }
+/* النصوص الثانوية على الخلفيات الفاتحة */
+body p, body small, body label, body .description, body .product-description,
+body .model-description, body .premium-product-description,
+body .premium-kicker, body .nova-discovery p, body .nova-eyebrow,
+body .product-tools, body .product-meta, body .muted, body .text-muted {
+  color: var(--nova-text-muted);
+  opacity: 1;
+}
+/* العناوين والبيانات المهمة تبقى داكنة وواضحة */
+.model-card, .model-card h1, .model-card h2, .model-card h3,
+.model-card h4, .model-card .product-name, .model-card .price,
+#productModal h1, #productModal h2, #productModal h3,
+#productModal label, #productModal p, #productModal small,
+#page1 h1, #page1 h2, #page1 h3 {
+  text-shadow: none;
+}
+/* الذهبي فوق الأبيض أو العاجي يُغمّق لرفع التباين */
+body .gold-text, body .text-gold, body .premium-kicker,
+body .nova-eyebrow, body .nova-discovery h2 em,
+body .model-card .gold, body .model-card .accent-text {
+  color: var(--nova-gold-readable);
+  -webkit-text-fill-color: var(--nova-gold-readable);
+  opacity: 1;
+}
+/* على الأسطح الداكنة فقط نستخدم الذهبي الفاتح */
+body .nova-discovery, body .nova-discovery h2,
+body .nova-discovery .nova-eyebrow,
+body .premium-product-media .premium-kicker,
+body .smart-checkout-page,
+body #page2 .smart-checkout-title,
+body #page2 .smart-checkout-title h1,
+body #page2 .smart-checkout-title .smart-kicker {
+  color: #F0D778;
+}
+/* الأزرار الذهبية: كتابة سوداء واضحة */
+button, .btn, [role="button"] { text-shadow: none; }
+button[style*="background: #D4AF37"], button[style*="background:#D4AF37"],
+button[style*="background-color: rgb(212, 175, 55)"],
+.btn-gold, .gold-button, .nova-chip.active {
+  color: #171717 !important;
+  -webkit-text-fill-color: #171717 !important;
+  font-weight: 800;
+}
+/* حقول الإدخال */
+input, select, textarea {
+  color: #171717;
+  background-color: #FFFFFF;
+}
+input::placeholder, textarea::placeholder {
+  color: #625A4D !important;
+  opacity: 1 !important;
+}
+/* الروابط لا تعتمد على ذهبي باهت فوق خلفية فاتحة */
+a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
+body a:not(.btn):not(button) { color: #70520A; }
+/* ضمان ظهور النصوص التي خُفّضت شفافيتها سابقاً */
+.model-card p, .model-card small, .model-card label,
+#productModal p, #productModal small, #productModal label,
+#page2 p, #page2 small, #page2 label { opacity: 1; }
+@media (prefers-contrast: more) {
+  body p, body small, body label, body a, body button,
+  input::placeholder, textarea::placeholder { text-shadow: none !important; }
+}
+</style>
