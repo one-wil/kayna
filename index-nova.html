@@ -7097,7 +7097,7 @@ input[placeholder*="الوصف"]{
                 }
 
                 card.innerHTML = `
-                    <article class="premium-product-card" onclick="showProductDetails('${key}')">
+                    <article class="premium-product-card" data-open-product="${key}" role="button" tabindex="0" aria-label="عرض تفاصيل ${product.name}">
                         <div class="premium-product-media">
                             <img src="${product.image}" alt="${product.name}" class="model-image" loading="lazy"
                                  onerror="this.src='https://via.placeholder.com/600x750?text=Image+Not+Available'">
@@ -13838,7 +13838,37 @@ header .header-content{min-height:68px!important}
   const search=document.getElementById('productSearch');if(search){search.removeAttribute('oninput');search.addEventListener('input',()=>applyFilters(search.value));}
   // Keep the adaptive layer in sync if the gallery is re-rendered by existing store code.
   const grid=document.getElementById('modelsGrid');if(grid){let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;const c=decorateCards();if(!document.getElementById('novaDiscovery'))ensureDiscovery(c);const currentSearch=document.getElementById('productSearch');applyFilters(currentSearch?currentSearch.value:'')})}).observe(grid,{childList:true});}
-  document.addEventListener('click',function(e){const card=e.target.closest('#modelsGrid .model-card');if(card){activeProductKey=card.getAttribute('data-product-key');setTimeout(()=>decorateModal(activeProductKey),40)}},true);
+  // فتح تفاصيل المنتج من أي موضع داخل البطاقة عبر تفويض الأحداث.
+  // هذا يتجنب الاعتماد على inline onclick الذي قد لا يعمل في بعض بيئات النشر،
+  // ويمنع استدعاء showProductDetails مرتين.
+  function openCardProduct(card){
+   if(!card)return;
+   const key=card.getAttribute('data-product-key');
+   if(key==null||key==='')return;
+   activeProductKey=key;
+   if(typeof window.showProductDetails==='function'){
+    window.showProductDetails(key);
+    setTimeout(()=>decorateModal(key),40);
+   }else if(typeof showProductDetails==='function'){
+    showProductDetails(key);
+    setTimeout(()=>decorateModal(key),40);
+   }
+  }
+  document.addEventListener('click',function(e){
+   const card=e.target.closest('#modelsGrid .model-card');
+   if(!card)return;
+   // لا نتدخل في عناصر تفاعلية مستقبلية قد تضاف داخل البطاقة.
+   if(e.target.closest('button,a,input,select,textarea,[data-card-action]'))return;
+   openCardProduct(card);
+  },true);
+  document.addEventListener('keydown',function(e){
+   if(e.key!=='Enter'&&e.key!==' ')return;
+   const card=e.target.closest('#modelsGrid .model-card .premium-product-card');
+   if(!card)return;
+   e.preventDefault();
+   const outer=card.closest('.model-card');
+   openCardProduct(outer);
+  },true);
   const modal=document.getElementById('productModal');if(modal)new MutationObserver(()=>{if(modal.classList.contains('show'))decorateModal()}).observe(modal,{attributes:true,attributeFilter:['class']});
   // Re-apply filter on search edits without replacing any cart, pricing or order functions.
   if(search)applyFilters(search.value);
