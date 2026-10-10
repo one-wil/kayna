@@ -160,36 +160,36 @@
         /* ===== Reset and Basics with New Design ===== */
         :root {
             --primary: #ffffff; /* أبيض */
-            --primary-light: #f5f7fa; /* أبيض فاتح */
-            --secondary: #0066CC; /* أزرق داكن */
-            --accent: #0099FF; /* أزرق أساسي */
+            --primary-light: #F7F4EC; /* أبيض فاتح */
+            --secondary: #171717; /* أسود أنيق */
+            --accent: #D4AF37; /* ذهبي فاخر */
             --success: #27ae60;
             --warning: #f39c12;
             --danger: #e74c3c;
             --info: #17a2b8;
-            --light: #f8fafc; /* أبيض مزرق */
+            --light: #FAF9F6; /* أبيض مزرق */
             --lighter: #ffffff; /* أبيض نقي */
-            --dark: #0066CC; /* أزرق للنص الداكن */
+            --dark: #171717; /* أسود للنص الداكن */
             --black: #333333; /* رمادي داكن بدلاً من أسود */
-            --gray: #0066CC; /* أزرق للون الرمادي */
-            --gray-light: #e3e9f2; /* رمادي فاتح مزرق */
-            --border: #d1d9e6; /* حدود فاتحة */
+            --gray: #6B6254; /* رمادي دافئ */
+            --gray-light: #E7E1D3; /* رمادي فاتح مزرق */
+            --border: #D8CFBB; /* حدود فاتحة */
             --radius: 8px;
-            --shadow: 0 2px 10px rgba(0, 102, 204, 0.1);
-            --shadow-light: 0 1px 4px rgba(0, 153, 255, 0.15);
+            --shadow: 0 2px 10px rgba(23, 23, 23, 0.10);
+            --shadow-light: 0 1px 4px rgba(212, 175, 55, 0.18);
             --transition: all 0.3s ease;
             --tiktok-color: #000000;
             
-            /* ألوان زرقاء إضافية */
-            --blue-light: #00CCFF;
-            --blue-medium: #0099FF;
-            --blue-dark: #003366;
-            --blue-glow: rgba(0, 153, 255, 0.25);
+            /* ألوان ذهبية وفاخرة إضافية */
+            --blue-light: #E8D8A0;
+            --blue-medium: #D4AF37;
+            --blue-dark: #6B5520;
+            --blue-glow: rgba(212, 175, 55, 0.25);
             
-            /* ألوان بيضاء إضافية */
+            /* ألوان بيضاء وعاجية إضافية */
             --white-pure: #ffffff;
-            --white-off: #f9fbfd;
-            --white-cream: #f5f9ff;
+            --white-off: #FBFAF7;
+            --white-cream: #F7F2E5;
         }
 
         * {
@@ -212,7 +212,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             font-size: 14px;
-            background: linear-gradient(135deg, #ffffff 0%, #f5f9ff 50%, #e6f2ff 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #F7F2E5 50%, #EDE5D2 100%);
         }
 
         .container {
@@ -303,7 +303,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(145deg, #0066CC, #0099FF);
+            background: linear-gradient(145deg, #171717, #D4AF37);
             color: white;
             display: flex;
             align-items: center;
@@ -353,7 +353,7 @@
             top: -10px;
             right: -5px;
             font-size: 20px;
-            color: #00CCFF;
+            color: #E8D8A0;
             opacity: 0.8;
             animation: sparkleRotate 4s linear infinite;
         }
@@ -500,7 +500,7 @@
         }
 
         .cart-summary {
-            background-color: rgba(0, 102, 204, 0.1);
+            background-color: rgba(23, 23, 23, 0.10);
             padding: 0.4rem 0.6rem;
             border-radius: 50px;
             display: flex;
@@ -517,7 +517,7 @@
             transform-origin: center;
             position: relative;
             border: 1px solid var(--border);
-            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+            box-shadow: 0 2px 8px rgba(23, 23, 23, 0.10);
         }
 
         .cart-summary:hover {
@@ -779,7 +779,7 @@
         
         .sparkle {
             position: absolute;
-            background-color: #0099FF;
+            background-color: #D4AF37;
             border-radius: 50%;
             pointer-events: none;
             z-index: 10003;
@@ -894,7 +894,7 @@
         
         @keyframes highlightItem {
             0% {
-                background-color: rgba(0, 153, 255, 0.15);
+                background-color: rgba(212, 175, 55, 0.18);
             }
             100% {
                 background-color: rgba(255, 255, 255, 0.5);
@@ -919,7 +919,7 @@
 
         .flying-heart {
             position: absolute;
-            color: #0099FF;
+            color: #D4AF37;
             font-size: 24px;
             opacity: 0;
             animation: heartFloat 3s ease-in-out forwards;
@@ -975,7 +975,7 @@
             justify-content: center;
             align-items: center;
             transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.1);
+            box-shadow: 0 4px 15px rgba(23, 23, 23, 0.10);
         }
 
         .model-image {
@@ -1005,10 +1005,10 @@
             display: none;
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 153, 255, 0.25);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
             border: 2px solid var(--accent);
             transition: all 0.4s ease;
-            background: linear-gradient(145deg, #ffffff, #f0f6ff);
+            background: linear-gradient(145deg, #ffffff, #F5EEDB);
             position: relative;
         }
 
@@ -1019,18 +1019,18 @@
 
         @keyframes tableGlowPulse {
             0%, 100% {
-                box-shadow: 0 0 15px rgba(0, 153, 255, 0.25), 0 0 30px rgba(0, 153, 255, 0.1);
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.25), 0 0 30px rgba(0, 153, 255, 0.1);
                 border-color: var(--accent);
             }
             50% {
                 box-shadow: 0 0 30px rgba(0, 153, 255, 0.5), 0 0 60px rgba(0, 153, 255, 0.2);
-                border-color: #00CCFF;
+                border-color: #E8D8A0;
             }
         }
 
         /* عنوان الجدول الجذاب */
         .measurements-table-title {
-            background: linear-gradient(135deg, #0066CC, #0099FF);
+            background: linear-gradient(135deg, #171717, #D4AF37);
             color: white;
             padding: 10px 16px;
             text-align: center;
@@ -1041,13 +1041,13 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            border-bottom: 3px solid #00CCFF;
+            border-bottom: 3px solid #E8D8A0;
             text-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
         .measurements-table-title i {
             font-size: 1.1rem;
-            color: #00CCFF;
+            color: #E8D8A0;
             animation: titleIconPulse 1.5s ease-in-out infinite;
         }
 
@@ -1064,7 +1064,7 @@
         }
 
         .measurements-table th {
-            background: linear-gradient(135deg, #0066CC, #0099FF);
+            background: linear-gradient(135deg, #171717, #D4AF37);
             color: white;
             padding: 12px 8px;
             text-align: center;
@@ -1072,7 +1072,7 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 3px solid #00CCFF;
+            border-bottom: 3px solid #E8D8A0;
         }
 
         .measurements-table th:first-child {
@@ -1117,12 +1117,12 @@
 
         /* تذييل الجدول مع نص توجيهي */
         .measurements-table-footer {
-            background: rgba(0, 153, 255, 0.06);
+            background: rgba(212, 175, 55, 0.08);
             padding: 8px 12px;
             text-align: center;
             font-size: 0.7rem;
             color: var(--dark);
-            border-top: 1px solid rgba(0, 102, 204, 0.1);
+            border-top: 1px solid rgba(23, 23, 23, 0.10);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1181,7 +1181,7 @@
             font-size: 24px;
             animation: lightningFlash 0.8s infinite;
             opacity: 0.9;
-            filter: drop-shadow(0 0 10px #0099FF);
+            filter: drop-shadow(0 0 10px #D4AF37);
         }
 
         @keyframes lightningFlash {
@@ -1263,7 +1263,7 @@
             margin-bottom: 0.2rem;
             font-size: 0.8rem;
             color: var(--secondary);
-            text-shadow: 0 1px 2px rgba(0, 102, 204, 0.1);
+            text-shadow: 0 1px 2px rgba(23, 23, 23, 0.10);
         }
 
         .selected-product-details {
@@ -1496,7 +1496,7 @@
             border-color: var(--accent);
             background-color: rgba(0, 153, 255, 0.05);
             transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(0, 153, 255, 0.15);
+            box-shadow: 0 3px 8px rgba(212, 175, 55, 0.18);
         }
 
         .color-option-small.selected {
@@ -1551,7 +1551,7 @@
             border-color: var(--accent);
             background-color: rgba(0, 153, 255, 0.05);
             transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(0, 153, 255, 0.15);
+            box-shadow: 0 3px 8px rgba(212, 175, 55, 0.18);
         }
 
         .size-option-small.selected {
@@ -1663,7 +1663,7 @@
         /* ===== قائمة البلديات المرتبطة بالولاية ===== */
         #commune { cursor: pointer; }
         #commune:disabled { cursor: not-allowed; opacity: 0.7; background-color: #f3f6fa !important; }
-        #commune.blue-field { border-color: var(--accent) !important; background-color: rgba(0, 153, 255, 0.06) !important; font-weight: 600; }
+        #commune.blue-field { border-color: var(--accent) !important; background-color: rgba(212, 175, 55, 0.08) !important; font-weight: 600; }
         #commune.loading { background-image: none !important; cursor: wait; }
 
         #page2 .form-group select {
@@ -1824,7 +1824,7 @@
             background-color: rgba(0, 153, 255, 0.08) !important;
             color: var(--dark) !important;
             border-color: var(--accent) !important;
-            box-shadow: 0 0 8px rgba(0, 153, 255, 0.15) !important;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.18) !important;
         }
 
         .delivery-option.blue-field {
@@ -1914,7 +1914,7 @@
             color: var(--secondary);
             position: relative;
             padding-bottom: 0.8rem;
-            text-shadow: 0 1px 2px rgba(0, 102, 204, 0.1);
+            text-shadow: 0 1px 2px rgba(23, 23, 23, 0.10);
         }
 
         .section-title::after {
@@ -2006,7 +2006,7 @@
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            text-shadow: 0 1px 2px rgba(0, 102, 204, 0.1);
+            text-shadow: 0 1px 2px rgba(23, 23, 23, 0.10);
         }
 
         .form-title i {
@@ -2374,7 +2374,7 @@
             font-weight: 700;
             margin-bottom: 0.8rem;
             color: var(--secondary);
-            text-shadow: 0 1px 2px rgba(0, 102, 204, 0.1);
+            text-shadow: 0 1px 2px rgba(23, 23, 23, 0.10);
         }
 
         .confirmation-message {
@@ -2505,7 +2505,7 @@
             text-align: center;
             margin: 1rem 0;
             border: 1px solid var(--border);
-            box-shadow: 0 2px 10px rgba(0, 102, 204, 0.1);
+            box-shadow: 0 2px 10px rgba(23, 23, 23, 0.10);
         }
 
         .contact-numbers {
@@ -2996,7 +2996,7 @@
           border-radius: 15px;
           padding: 15px;
           position: relative;
-          box-shadow: 0 10px 30px rgba(0, 102, 204, 0.1);
+          box-shadow: 0 10px 30px rgba(23, 23, 23, 0.10);
         }
 
         .hint-icon {
@@ -3108,9 +3108,9 @@
 
         /* ===== زر البرقية الأزرق المميز ===== */
         .btn-telegraph {
-            background: linear-gradient(135deg, #0066CC 0%, #0099FF 50%, #003366 100%) !important;
+            background: linear-gradient(135deg, #171717 0%, #D4AF37 50%, #6B5520 100%) !important;
             color: #FFFFFF !important;
-            border: 3px solid #0099FF !important;
+            border: 3px solid #D4AF37 !important;
             padding: 0.8rem 2rem !important;
             border-radius: 12px !important;
             font-weight: 900 !important;
@@ -3142,7 +3142,7 @@
             box-shadow: 0 8px 35px rgba(0, 102, 204, 0.8),
                         0 0 50px rgba(0, 153, 255, 0.7),
                         inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-            background: linear-gradient(135deg, #0099FF 0%, #00CCFF 50%, #0066CC 100%) !important;
+            background: linear-gradient(135deg, #D4AF37 0%, #E8D8A0 50%, #171717 100%) !important;
             animation-play-state: paused !important;
         }
 
@@ -3153,29 +3153,29 @@
 
         @keyframes telegraphBlink {
             0%, 30% {
-                background: linear-gradient(135deg, #0066CC 0%, #0099FF 50%, #003366 100%) !important;
+                background: linear-gradient(135deg, #171717 0%, #D4AF37 50%, #6B5520 100%) !important;
                 box-shadow: 0 6px 25px rgba(0, 102, 204, 0.6),
                             0 0 35px rgba(0, 153, 255, 0.5),
                             inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-                border-color: #0099FF !important;
+                border-color: #D4AF37 !important;
                 color: #FFFFFF !important;
                 opacity: 1;
             }
             35%, 65% {
-                background: linear-gradient(135deg, #0099FF 0%, #00CCFF 50%, #0066CC 100%) !important;
+                background: linear-gradient(135deg, #D4AF37 0%, #E8D8A0 50%, #171717 100%) !important;
                 box-shadow: 0 6px 30px rgba(0, 153, 255, 0.8),
                             0 0 45px rgba(0, 204, 255, 0.7),
                             inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-                border-color: #00CCFF !important;
+                border-color: #E8D8A0 !important;
                 color: #FFFFFF !important;
                 opacity: 0.9;
             }
             70%, 100% {
-                background: linear-gradient(135deg, #0066CC 0%, #0099FF 50%, #003366 100%) !important;
+                background: linear-gradient(135deg, #171717 0%, #D4AF37 50%, #6B5520 100%) !important;
                 box-shadow: 0 6px 25px rgba(0, 102, 204, 0.6),
                             0 0 35px rgba(0, 153, 255, 0.5),
                             inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-                border-color: #0099FF !important;
+                border-color: #D4AF37 !important;
                 color: #FFFFFF !important;
                 opacity: 1;
             }
@@ -3284,9 +3284,9 @@
 
         /* ===== زر البرقية الأزرق المميز (الزر الوحيد) ===== */
         .btn-single-telegraph {
-            background: linear-gradient(135deg, #0066CC 0%, #0099FF 50%, #003366 100%) !important;
+            background: linear-gradient(135deg, #171717 0%, #D4AF37 50%, #6B5520 100%) !important;
             color: #FFFFFF !important;
-            border: 3px solid #0099FF !important;
+            border: 3px solid #D4AF37 !important;
             padding: 1rem 2.5rem !important;
             border-radius: 12px !important;
             font-weight: 900 !important;
@@ -3319,7 +3319,7 @@
             box-shadow: 0 8px 35px rgba(0, 102, 204, 0.8),
                         0 0 50px rgba(0, 153, 255, 0.7),
                         inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-            background: linear-gradient(135deg, #0099FF 0%, #00CCFF 50%, #0066CC 100%) !important;
+            background: linear-gradient(135deg, #D4AF37 0%, #E8D8A0 50%, #171717 100%) !important;
             animation-play-state: paused !important;
         }
 
@@ -3330,29 +3330,29 @@
 
         @keyframes telegraphBlinkSingle {
             0%, 30% {
-                background: linear-gradient(135deg, #0066CC 0%, #0099FF 50%, #003366 100%) !important;
+                background: linear-gradient(135deg, #171717 0%, #D4AF37 50%, #6B5520 100%) !important;
                 box-shadow: 0 6px 25px rgba(0, 102, 204, 0.6),
                             0 0 35px rgba(0, 153, 255, 0.5),
                             inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-                border-color: #0099FF !important;
+                border-color: #D4AF37 !important;
                 color: #FFFFFF !important;
                 opacity: 1;
             }
             35%, 65% {
-                background: linear-gradient(135deg, #0099FF 0%, #00CCFF 50%, #0066CC 100%) !important;
+                background: linear-gradient(135deg, #D4AF37 0%, #E8D8A0 50%, #171717 100%) !important;
                 box-shadow: 0 6px 30px rgba(0, 153, 255, 0.8),
                             0 0 45px rgba(0, 204, 255, 0.7),
                             inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-                border-color: #00CCFF !important;
+                border-color: #E8D8A0 !important;
                 color: #FFFFFF !important;
                 opacity: 0.9;
             }
             70%, 100% {
-                background: linear-gradient(135deg, #0066CC 0%, #0099FF 50%, #003366 100%) !important;
+                background: linear-gradient(135deg, #171717 0%, #D4AF37 50%, #6B5520 100%) !important;
                 box-shadow: 0 6px 25px rgba(0, 102, 204, 0.6),
                             0 0 35px rgba(0, 153, 255, 0.5),
                             inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-                border-color: #0099FF !important;
+                border-color: #D4AF37 !important;
                 color: #FFFFFF !important;
                 opacity: 1;
             }
@@ -4223,7 +4223,7 @@
     padding: 2.5rem 1rem;
     border: 1px dashed rgba(15,23,42,.15);
     border-radius: 22px;
-    background: linear-gradient(180deg, #fff, #f8fafc);
+    background: linear-gradient(180deg, #fff, #FAF9F6);
     margin: .5rem 0;
 }
 .premium-empty-cart .empty-cart-icon {
@@ -4393,7 +4393,7 @@
   gap:12px;
   padding:14px 16px;
   border-radius:17px;
-  background:#f8fafc;
+  background:#FAF9F6;
   border:1px solid #edf0f4;
   margin-bottom:15px;
 }
@@ -4816,7 +4816,7 @@
 
 .advanced-delivery-box{
   margin:9px 0 3px;padding:11px 12px;border:1px solid #e5e7eb;
-  border-radius:15px;background:#f8fafc;
+  border-radius:15px;background:#FAF9F6;
 }
 .advanced-delivery-title{
   display:flex;align-items:center;gap:7px;font-size:.82rem;
@@ -5114,7 +5114,7 @@
     box-sizing:border-box !important;
     background:#fff !important;
     color:#29485b !important;
-    border:1px solid #d1d9e6 !important;
+    border:1px solid #D8CFBB !important;
     border-radius:8px !important;
     font-weight:600 !important;
     box-shadow:none !important;
@@ -5125,7 +5125,7 @@
 
 /* عند مرور المؤشر: نفس الإحساس البصري لزر اللون */
 #productModal #ageOptions .size-option-small:hover{
-    border-color:#0099FF !important;
+    border-color:#D4AF37 !important;
     background:rgba(0,153,255,.05) !important;
     transform:translateY(-1px) !important;
     box-shadow:0 3px 8px rgba(0,153,255,.15) !important;
@@ -6383,8 +6383,8 @@ footer{color:#9cbab8!important}
             
             const sizes = [18, 20, 22, 24, 26, 28, 30];
             const colors = [
-                '#0066CC', '#0099FF', '#00CCFF', '#003366',
-                '#0066FF', '#0099CC', '#0066CC', '#0099FF'
+                '#171717', '#D4AF37', '#E8D8A0', '#6B5520',
+                '#0066FF', '#0099CC', '#171717', '#D4AF37'
             ];
             
             heart.style.fontSize = sizes[Math.floor(Math.random() * sizes.length)] + 'px';
@@ -6495,7 +6495,7 @@ footer{color:#9cbab8!important}
             counter.style.left = startX + 'px';
             counter.style.top = startY + 'px';
             
-            const colors = ['#0099FF', '#0066CC', '#00CCFF', '#0033FF'];
+            const colors = ['#D4AF37', '#171717', '#E8D8A0', '#0033FF'];
             const rocketColor = colors[index % colors.length];
             counter.style.backgroundColor = rocketColor;
             counter.style.boxShadow = `0 0 25px ${rocketColor}, 0 0 50px rgba(0, 153, 255, 0.3)`;
@@ -6684,7 +6684,7 @@ footer{color:#9cbab8!important}
         
         function createSparkles(x, y) {
             const sparkleCount = 20;
-            const colors = ['#0099FF', '#0066CC', '#00CCFF', '#0033FF', '#0066FF'];
+            const colors = ['#D4AF37', '#171717', '#E8D8A0', '#0033FF', '#0066FF'];
             
             for (let i = 0; i < sparkleCount; i++) {
                 setTimeout(() => {
@@ -9330,9 +9330,9 @@ updateDeliveryCost();
         
         function createCrossTelegraphLinesFromButton(centerX, centerY) {
             const lines = [
-                { deg: 0, color: '#0099FF' },
-                { deg: 90, color: '#00CCFF' },
-                { deg: 45, color: '#0066CC' },
+                { deg: 0, color: '#D4AF37' },
+                { deg: 90, color: '#E8D8A0' },
+                { deg: 45, color: '#171717' },
                 { deg: 135, color: '#0033FF' }
             ];
             
@@ -9419,7 +9419,7 @@ updateDeliveryCost();
                     spark.style.borderRadius = '50%';
                     spark.style.zIndex = '99999';
                     spark.style.pointerEvents = 'none';
-                    spark.style.boxShadow = '0 0 10px #FFFFFF, 0 0 20px #0099FF';
+                    spark.style.boxShadow = '0 0 10px #FFFFFF, 0 0 20px #D4AF37';
                     
                     document.body.appendChild(spark);
                     
@@ -9890,9 +9890,9 @@ updateDeliveryCost();
 
         function createCrossTelegraphLines() {
             const lines = [
-                { deg: 0, color: '#0099FF' },
-                { deg: 90, color: '#00CCFF' },
-                { deg: 45, color: '#0066CC' },
+                { deg: 0, color: '#D4AF37' },
+                { deg: 90, color: '#E8D8A0' },
+                { deg: 45, color: '#171717' },
                 { deg: 135, color: '#0033FF' }
             ];
             
@@ -9980,7 +9980,7 @@ updateDeliveryCost();
                     spark.style.borderRadius = '50%';
                     spark.style.zIndex = '99999';
                     spark.style.pointerEvents = 'none';
-                    spark.style.boxShadow = '0 0 15px #FFFFFF, 0 0 30px #0099FF';
+                    spark.style.boxShadow = '0 0 15px #FFFFFF, 0 0 30px #D4AF37';
                     
                     document.body.appendChild(spark);
                     
@@ -10018,11 +10018,11 @@ updateDeliveryCost();
                 title.style.top = '50px';
                 title.style.right = '50%';
                 title.style.transform = 'translateX(50%)';
-                title.style.color = '#0099FF';
+                title.style.color = '#D4AF37';
                 title.style.fontSize = '24px';
                 title.style.fontWeight = 'bold';
                 title.style.fontFamily = 'Cairo, sans-serif';
-                title.style.textShadow = '0 0 20px #0099FF';
+                title.style.textShadow = '0 0 20px #D4AF37';
                 title.style.zIndex = '9999';
                 title.style.pointerEvents = 'none';
                 title.style.textAlign = 'center';
@@ -12743,7 +12743,7 @@ let tries=0; const timer=setInterval(()=>{tries++;if(install()||tries>=40)clearI
 #productModal .color-option-small.selected,#productModal .size-option-small.selected{background:#15192a!important;color:#c7ff5e!important;border:2px solid #c7ff5e!important;box-shadow:0 0 0 3px rgba(199,255,94,.2)!important}
 #productModal .quantity-btn{border-radius:12px!important;background:#15192a!important;color:#c7ff5e!important;width:42px!important;height:42px!important}
 #productModal #addToCartFromModal.visible{border-radius:16px!important;background:linear-gradient(110deg,#c7ff5e,#a7ef45)!important;color:#111522!important;box-shadow:0 9px 25px rgba(123,184,30,.28)!important;font-weight:900!important}
-#page2 .smart-checkout-head{position:relative;overflow:hidden;border:1px solid rgba(199,255,94,.24)!important;background:linear-gradient(115deg,#10131f,#29243f 72%,#37325a)!important}
+#page2 .smart-checkout-head{position:relative;overflow:hidden;border:1px solid rgba(212,175,55,.25)!important;background:linear-gradient(115deg,#10131f,#29243f 72%,#37325a)!important}
 #page2 .smart-checkout-head::after{content:'✦';position:absolute;left:5%;top:-50px;font-size:170px;color:rgba(199,255,94,.075);pointer-events:none}
 #page2 .smart-panel{position:relative;overflow:visible;border:1px solid rgba(16,19,31,.09)!important;border-radius:24px!important;box-shadow:0 14px 35px rgba(16,19,31,.075)!important;transition:box-shadow .2s,border-color .2s!important}
 #page2 .smart-panel:focus-within{border-color:rgba(167,139,250,.55)!important;box-shadow:0 12px 38px rgba(110,85,200,.13)!important}
@@ -13583,7 +13583,7 @@ let tries=0; const timer=setInterval(()=>{tries++;if(install()||tries>=40)clearI
   left:50%!important;
   width:58px!important;
   height:18px!important;
-  border:3px solid #0066CC!important;
+  border:3px solid #171717!important;
   border-bottom:0!important;
   border-radius:18px 18px 0 0!important;
   background:transparent!important;
@@ -13955,7 +13955,7 @@ header .header-content{min-height:68px!important}
 .nova-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;position:relative;z-index:2}
 .nova-chip{appearance:none;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.07);color:#fff;padding:9px 14px;border-radius:999px;font:700 12px 'Cairo',sans-serif;cursor:pointer;transition:transform .2s,background .2s,border-color .2s;backdrop-filter:blur(8px)}
 .nova-chip:hover{transform:translateY(-2px);border-color:rgba(199,255,94,.65)}
-.nova-chip.active{background:var(--nova-lime);color:var(--nova-ink);border-color:var(--nova-lime);box-shadow:0 5px 20px rgba(199,255,94,.18)}
+.nova-chip.active{background:var(--nova-lime);color:var(--nova-ink);border-color:var(--nova-lime);box-shadow:0 5px 20px rgba(212,175,55,.20)}
 .models-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:clamp(10px,2vw,22px)!important;align-items:stretch!important;margin:20px 0 36px!important}
 @media(min-width:900px){.models-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:24px!important}}
 @media(min-width:1250px){.models-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
@@ -14121,23 +14121,37 @@ header .header-content{min-height:68px!important}
 .smart-checkout-page .smart-section-no,
 #page2 .smart-section-no,
 #page2 .smart-section-no[data-stage] {
-  background: #C7FF5E !important;
+  background: #D4AF37 !important;
   color: #111522 !important;
   border: 1px solid rgba(17,21,34,.18) !important;
   text-shadow: none !important;
-  box-shadow: 0 0 0 3px rgba(199,255,94,.18), 0 0 16px rgba(199,255,94,.24) !important;
+  box-shadow: 0 0 0 3px rgba(212,175,55,.20), 0 0 16px rgba(212,175,55,.25) !important;
 }
 /* عنوان إتمام الطلب وأكمل طلبك: أخضر نيون واضح فوق الخلفية الداكنة */
 #page2 .smart-checkout-title .smart-kicker,
 #page2 .smart-checkout-title h1,
 #page2 #smartCheckoutIntro .smart-kicker,
 #page2 #smartCheckoutIntro h1 {
-  color: #C7FF5E !important;
+  color: #D4AF37 !important;
   opacity: 1 !important;
   visibility: visible !important;
-  text-shadow: 0 0 7px rgba(199,255,94,.52), 0 0 18px rgba(199,255,94,.30) !important;
-  -webkit-text-fill-color: #C7FF5E !important;
+  text-shadow: 0 0 7px rgba(212,175,55,.48), 0 0 18px rgba(212,175,55,.28) !important;
+  -webkit-text-fill-color: #D4AF37 !important;
 }
 #page2 .smart-checkout-title .smart-kicker { font-weight: 900 !important; }
 #page2 .smart-checkout-title h1 { font-weight: 900 !important; }
+</style>
+
+<style id="nova-luxury-palette-v1">
+/* NOVA SHOWROOM — أسود + ذهبي + أبيض عاجي، مع درجات شامبانيا متناسقة */
+:root {
+  --primary: #FFFFFF; --primary-light: #F7F4EC;
+  --secondary: #171717; --accent: #D4AF37;
+  --dark: #171717; --black: #111111; --gray: #6B6254;
+  --gray-light: #E7E1D3; --border: #D8CFBB;
+  --white-pure: #FFFFFF; --white-off: #FBFAF7; --white-cream: #F7F2E5;
+  --blue-light: #E8D8A0; --blue-medium: #D4AF37; --blue-dark: #6B5520;
+  --blue-glow: rgba(212,175,55,.25);
+}
+body { color: #171717; background: linear-gradient(135deg,#FFFFFF 0%,#FBFAF7 55%,#F1E8D2 100%); }
 </style>
