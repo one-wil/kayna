@@ -11117,74 +11117,102 @@ window.caClearSessionDateFilter=function(){
 
 
 <style id="hidden-tabs-shimmer-arrow">
-/* سهم لامع يلفت الانتباه إلى وجود تبويبات إضافية في شريط الأدوات السفلي */
+/* مؤشر تنقّل أنيق للتبويبات المخفية: شارة زجاجية وسهم مزدوج نحيف */
 @media (max-width: 768px) {
-    .sidebar {
-        position: fixed !important;
-    }
-    .sidebar.has-hidden-tabs::after {
-        content: "‹";
-        position: absolute;
-        left: 5px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 25px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9px;
-        color: #fff;
-        font: 900 32px/1 Arial, sans-serif;
-        background: linear-gradient(135deg, rgba(72,149,239,.96), rgba(114,9,183,.96));
-        box-shadow: 0 0 8px rgba(72,149,239,.7), 0 0 18px rgba(114,9,183,.55);
-        pointer-events: none;
-        z-index: 3;
-        animation: hiddenTabsArrowGlow 1.15s ease-in-out infinite;
-    }
-    .sidebar.has-hidden-tabs::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 8px;
-        bottom: 8px;
-        width: 34px;
-        border-radius: 0 10px 10px 0;
-        background: linear-gradient(90deg, rgba(72,149,239,.26), rgba(72,149,239,0));
-        pointer-events: none;
-        z-index: 2;
-        animation: hiddenTabsEdgeShine 1.15s ease-in-out infinite;
-    }
+  .sidebar { position: fixed !important; }
+  .hidden-tabs-indicator {
+    position: absolute;
+    left: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 12px;
+    background: linear-gradient(145deg, rgba(76, 125, 255, .30), rgba(20, 25, 55, .88));
+    box-shadow: 0 3px 12px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none;
+    z-index: 5;
+    overflow: hidden;
+    animation: hiddenTabsIndicatorFloat 1.8s ease-in-out infinite;
+  }
+  .hidden-tabs-indicator::before {
+    content: "";
+    position: absolute;
+    top: -35%;
+    left: -70%;
+    width: 55%;
+    height: 170%;
+    transform: rotate(22deg);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+    animation: hiddenTabsIndicatorShine 2.2s ease-in-out infinite;
+  }
+  .hidden-tabs-indicator svg {
+    width: 17px;
+    height: 25px;
+    overflow: visible;
+    filter: drop-shadow(0 0 4px rgba(100,180,255,.75));
+  }
+  .hidden-tabs-indicator path {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 }
-@keyframes hiddenTabsArrowGlow {
-    0%, 100% { opacity: .65; filter: brightness(1); box-shadow: 0 0 5px rgba(72,149,239,.45); }
-    50% { opacity: 1; filter: brightness(1.5); box-shadow: 0 0 12px rgba(72,149,239,.95), 0 0 24px rgba(114,9,183,.8); }
+@keyframes hiddenTabsIndicatorFloat {
+  0%, 100% { opacity: .78; transform: translate(0,-50%); }
+  50% { opacity: 1; transform: translate(-3px,-50%); }
 }
-@keyframes hiddenTabsEdgeShine {
-    0%, 100% { opacity: .45; }
-    50% { opacity: 1; }
+@keyframes hiddenTabsIndicatorShine {
+  0%, 25% { left: -70%; opacity: 0; }
+  45% { opacity: 1; }
+  75%, 100% { left: 130%; opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .sidebar.has-hidden-tabs::before,
-    .sidebar.has-hidden-tabs::after { animation: none !important; }
+  .hidden-tabs-indicator, .hidden-tabs-indicator::before { animation: none !important; }
 }
 </style>
 <script id="hidden-tabs-overflow-detection">
 (function () {
-    function updateHiddenTabsArrow() {
-        var sidebar = document.querySelector('.sidebar');
-        var menu = sidebar && sidebar.querySelector('.sidebar-menu');
-        if (!sidebar || !menu || window.innerWidth > 768) {
-            if (sidebar) sidebar.classList.remove('has-hidden-tabs');
-            return;
-        }
-        sidebar.classList.toggle('has-hidden-tabs', menu.scrollWidth > menu.clientWidth + 2);
+  function updateHiddenTabsArrow() {
+    var sidebar = document.querySelector('.sidebar');
+    var menu = sidebar && sidebar.querySelector('.sidebar-menu');
+    if (!sidebar || !menu) return;
+    var old = sidebar.querySelector('.hidden-tabs-indicator');
+    var needsHint = window.innerWidth <= 768 && menu.scrollWidth > menu.clientWidth + 3;
+    if (!needsHint) {
+      if (old) old.remove();
+      sidebar.classList.remove('has-hidden-tabs');
+      return;
     }
-    window.addEventListener('load', updateHiddenTabsArrow, { once: true });
-    window.addEventListener('resize', updateHiddenTabsArrow);
-    document.addEventListener('DOMContentLoaded', updateHiddenTabsArrow);
-    window.addEventListener('orientationchange', updateHiddenTabsArrow);
-    setTimeout(updateHiddenTabsArrow, 500);
+    sidebar.classList.add('has-hidden-tabs');
+    if (!old) {
+      old = document.createElement('div');
+      old.className = 'hidden-tabs-indicator';
+      old.setAttribute('aria-hidden', 'true');
+      old.innerHTML = '<svg viewBox="0 0 20 30" aria-hidden="true"><path d="M13 5 L6 15 L13 25"/><path d="M19 5 L12 15 L19 25" opacity=".58"/></svg>';
+      sidebar.appendChild(old);
+    }
+  }
+  window.addEventListener('load', updateHiddenTabsArrow, { once: true });
+  window.addEventListener('resize', updateHiddenTabsArrow);
+  window.addEventListener('orientationchange', updateHiddenTabsArrow);
+  document.addEventListener('DOMContentLoaded', updateHiddenTabsArrow);
+  if (window.ResizeObserver) {
+    document.addEventListener('DOMContentLoaded', function () {
+      var menu = document.querySelector('.sidebar-menu');
+      if (menu) new ResizeObserver(updateHiddenTabsArrow).observe(menu);
+    });
+  }
+  setTimeout(updateHiddenTabsArrow, 500);
+  setTimeout(updateHiddenTabsArrow, 1500);
 })();
 </script>
 
