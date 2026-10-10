@@ -12652,6 +12652,36 @@ let tries=0; const timer=setInterval(()=>{tries++;if(install()||tries>=40)clearI
 @media(max-width:600px){#productModal{padding:7px!important}#productModal .product-modal-content{max-height:94dvh!important;border-radius:20px!important}#productModal .product-detail-meta-top{padding:13px!important;border-radius:15px!important}#page2 .smart-panel{border-radius:18px!important}}
 @media(prefers-reduced-motion:reduce){#productModal .product-modal-close,#page2 .smart-panel{transition:none!important}}
 </style>
+
+<style id="nova-checkout-heading-position-v2">
+/* Keep the checkout heading fully visible: shift the Arabic text inward from the right edge. */
+#page2 .smart-checkout-head { overflow: hidden !important; }
+#page2 .smart-checkout-title {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  padding-inline: 0 22px !important;
+  margin-inline-end: 12px !important;
+  text-align: right !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+#page2 .smart-checkout-title .smart-kicker,
+#page2 .smart-checkout-title h1,
+#page2 #smartCheckoutIntro .smart-kicker,
+#page2 #smartCheckoutIntro h1 {
+  color: #C7FF5E !important;
+  -webkit-text-fill-color: #C7FF5E !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: 0 0 7px rgba(199,255,94,.58), 0 0 18px rgba(199,255,94,.38) !important;
+  overflow-wrap: anywhere !important;
+}
+@media (max-width: 480px) {
+  #page2 .smart-checkout-title { padding-inline-end: 28px !important; margin-inline-end: 8px !important; }
+  #page2 .smart-checkout-title h1 { font-size: clamp(1rem, 4.8vw, 1.25rem) !important; }
+}
+</style>
+
 </body>
 
 <style id="index31-size-motion-absolute-final">
@@ -14033,4 +14063,21 @@ header .header-content{min-height:68px!important}
 }
 #page2 .smart-checkout-title .smart-kicker { font-weight: 900 !important; }
 #page2 .smart-checkout-title h1 { font-weight: 900 !important; }
+</style>
+
+<style id="product-order-badge-black-number-v1">
+/* رقم المنتج داخل الشارة الخضراء: أسود واضح عالي التباين */
+.premium-product-top .premium-order {
+  background: #C7FF5E !important;
+  color: #111522 !important;
+  border: 1px solid rgba(17,21,34,.18) !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,.16), 0 0 14px rgba(199,255,94,.28) !important;
+}
+.premium-product-top .premium-order .order-number-badge {
+  color: #111522 !important;
+  background: transparent !important;
+  -webkit-text-fill-color: #111522 !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
 </style>
