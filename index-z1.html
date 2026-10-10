@@ -14008,3 +14008,29 @@ header .header-content{min-height:68px!important}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+
+<style id="nova-checkout-heading-contrast-v1">
+/* وضوح رقم المرحلة داخل الأخضر: رقم أسود عالي التباين */
+.smart-checkout-page .smart-section-no,
+#page2 .smart-section-no,
+#page2 .smart-section-no[data-stage] {
+  background: #C7FF5E !important;
+  color: #111522 !important;
+  border: 1px solid rgba(17,21,34,.18) !important;
+  text-shadow: none !important;
+  box-shadow: 0 0 0 3px rgba(199,255,94,.18), 0 0 16px rgba(199,255,94,.24) !important;
+}
+/* عنوان إتمام الطلب وأكمل طلبك: أخضر نيون واضح فوق الخلفية الداكنة */
+#page2 .smart-checkout-title .smart-kicker,
+#page2 .smart-checkout-title h1,
+#page2 #smartCheckoutIntro .smart-kicker,
+#page2 #smartCheckoutIntro h1 {
+  color: #C7FF5E !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: 0 0 7px rgba(199,255,94,.52), 0 0 18px rgba(199,255,94,.30) !important;
+  -webkit-text-fill-color: #C7FF5E !important;
+}
+#page2 .smart-checkout-title .smart-kicker { font-weight: 900 !important; }
+#page2 .smart-checkout-title h1 { font-weight: 900 !important; }
+</style>
