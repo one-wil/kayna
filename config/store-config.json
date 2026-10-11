@@ -207,6 +207,48 @@
       "createdAt": "2026-09-16T17:57:03.689Z",
       "image": "https://raw.githubusercontent.com/one-wil/vol-shop/main/images/product-1789581423689-1789581668031-Messenger-creation-810CA979-D104-4003-AC53-8D1BA722871C.jpeg",
       "updatedAt": "2026-10-09T11:29:01.809Z"
+    },
+    "1791709556487": {
+      "name": "حداء رياضي",
+      "price": 50000,
+      "description": "حداء عالي الجودة",
+      "category": "",
+      "stock": 0,
+      "featured": false,
+      "availableColors": [
+        "رمادي"
+      ],
+      "availableSizes": [
+        "38",
+        "39"
+      ],
+      "ageRanges": [],
+      "colorImages": {
+        "رمادي": {
+          "images": [
+            "https://raw.githubusercontent.com/one-wil/kayna/main/images/product-1791709556487-رمادي-1791711805764-Screenshot-20260105-224958-Chrome.jpg"
+          ],
+          "ageRanges": [
+            {
+              "ageFrom": "",
+              "ageTo": "",
+              "size": "38"
+            },
+            {
+              "ageFrom": "",
+              "ageTo": "",
+              "size": "39"
+            }
+          ]
+        }
+      },
+      "sizeGuide": {
+        "enabled": true,
+        "guide": {}
+      },
+      "createdAt": "2026-10-11T09:05:56.487Z",
+      "image": "https://raw.githubusercontent.com/one-wil/kayna/main/images/product-1791709556487-1791711678936-Screenshot-20260105-224958-Chrome.jpg",
+      "updatedAt": "2026-10-11T09:41:55.735Z"
     }
   },
   "PRODUCT_ORDER": {
