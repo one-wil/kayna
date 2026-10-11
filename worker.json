@@ -1,5 +1,5 @@
-/* ============================================================
-   StoreMaster Worker V8.6 — Template Switch
+/*============================================================
+   StoreMaster Worker V8.1 FINAL
    GitHub + Cloudflare Pages + KV + Secure Admin Session
 
    IMPORTANT:
@@ -10,7 +10,7 @@
      never from a random deployment URL.
    ============================================================ */
 
-const APP_VERSION = "8.6";
+const APP_VERSION = "8.2";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -67,10 +67,74 @@ async function sha256(value) {
     .join("");
 }
 
+function currentAlgeriaDateISO() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Africa/Algiers", year: "numeric", month: "2-digit", day: "2-digit"
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 function isExpired(date) {
   if (!date) return false;
-  const d = new Date(`${date}T23:59:59.999Z`);
-  return Number.isFinite(d.getTime()) && new Date() > d;
+  return isValidISODate(date) && currentAlgeriaDateISO() > date;
+}
+
+const SUBSCRIPTION_PLANS = Object.freeze({
+  "trial": { label: "تجربة مجانية لمدة شهر", days: 30, months: 0, price: 0 },
+  "3m": { label: "3 أشهر", months: 3, price: 3000 },
+  "6m": { label: "6 أشهر", months: 6, price: 5000 },
+  "12m": { label: "12 شهرًا", months: 12, price: 9000 }
+});
+
+function isValidISODate(value) {
+  const s = String(value || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(`${s}T00:00:00.000Z`);
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === s;
+}
+
+function addDaysISO(date, days) {
+  if (!isValidISODate(date)) return null;
+  const d = new Date(`${date}T00:00:00.000Z`);
+  d.setUTCDate(d.getUTCDate() + Number(days));
+  return d.toISOString().slice(0, 10);
+}
+
+function addMonthsISO(date, months) {
+  if (!isValidISODate(date)) return null;
+  const [year, month, day] = date.split("-").map(Number);
+  const totalMonth = month - 1 + Number(months);
+  const targetYear = year + Math.floor(totalMonth / 12);
+  const targetMonth = ((totalMonth % 12) + 12) % 12;
+  const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(targetYear, targetMonth, Math.min(day, lastDay))).toISOString().slice(0, 10);
+}
+
+function subscriptionView(license) {
+  const expirationDate = license?.expirationDate || null;
+  let daysRemaining = null;
+  if (expirationDate && isValidISODate(expirationDate)) {
+    const today = currentAlgeriaDateISO();
+    daysRemaining = Math.round((Date.parse(`${expirationDate}T00:00:00.000Z`) - Date.parse(`${today}T00:00:00.000Z`)) / 86400000);
+  }
+  const plan = SUBSCRIPTION_PLANS[license?.subscriptionPlan] || null;
+  const expired = isExpired(expirationDate);
+  return {
+    subscriptionPlan: license?.subscriptionPlan || null,
+    subscriptionType: license?.subscriptionType || (license?.subscriptionPlan === "trial" ? "trial" : "paid"),
+    trialUsed: Boolean(license?.trialUsed || license?.subscriptionPlan === "trial"),
+    trialStartDate: license?.trialStartDate || null,
+    trialEndDate: license?.trialEndDate || null,
+    subscriptionName: plan?.label || license?.subscriptionName || null,
+    subscriptionPrice: license?.subscriptionPrice !== null && license?.subscriptionPrice !== undefined && license?.subscriptionPrice !== "" && Number.isFinite(Number(license.subscriptionPrice)) ? Number(license.subscriptionPrice) : (plan?.price ?? null),
+    activationDate: license?.activationDate || license?.createdAt?.slice?.(0, 10) || null,
+    expirationDate,
+    daysRemaining,
+    status: license?.status || "unknown",
+    expired,
+    licensed: license?.status === "active" && !expired
+  };
 }
 
 function validateLicenseObject(license) {
@@ -128,6 +192,183 @@ async function getLicenseBySite(env, site) {
   } while (cursor);
 
   return null;
+}
+
+
+async function findLicenseForMasterAction(env, body) {
+  const storeId = String(body.storeId || body.licenseId || "").trim();
+  if (storeId) return getLicense(env, storeId);
+
+  const site = normalizeSite(body.site || body.siteKey || body.url || "");
+  if (site) {
+    const found = await getLicenseBySite(env, site);
+    if (found) return found;
+  }
+
+  const repository = normalizeRepo(body.repository || body.project || body.projectName || "");
+  if (!repository) return null;
+  let cursor;
+  do {
+    const page = await env.LICENSES.list({ prefix: "license:", cursor });
+    for (const key of page.keys || []) {
+      const license = await getLicense(env, key.name.slice("license:".length));
+      if (!license) continue;
+      if (normalizeRepo(license.repository) === repository ||
+          normalizeRepo(license.cloudflare?.projectName) === repository) return license;
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  return null;
+}
+
+function buildLicenseMiddleware(workerUrl) {
+  const base = JSON.stringify(String(workerUrl || "").replace(/\/$/, ""));
+  return `// StoreMaster license guard — managed automatically by StoreMaster.
+const STOREMASTER_WORKER = ${base};
+
+export async function onRequest(context) {
+  const requestUrl = new URL(context.request.url);
+  const pathname = requestUrl.pathname.replace(/\\/+$/, "") || "/";
+  // Keep the admin page available after expiry so the owner can see subscription details.
+  // Protected admin APIs remain blocked by Worker session validation while expired.
+  if (pathname === "/adm" || pathname === "/adm.html") return context.next();
+  const host = requestUrl.hostname;
+  const checkUrl = STOREMASTER_WORKER + "/api/store/license-status?site=" + encodeURIComponent(host);
+  try {
+    const response = await fetch(checkUrl, { headers: { "Accept": "application/json" } });
+    const result = await response.json();
+    if (response.ok && result && result.success === true && result.licensed === true) {
+      return context.next();
+    }
+    return new Response("<!doctype html><html lang=\\"ar\\"><meta charset=\\"utf-8\\"><meta name=\\"viewport\\" content=\\"width=device-width,initial-scale=1\\"><title>المتجر غير متاح</title><body style=\\"font-family:Arial,sans-serif;text-align:center;padding:12vh 20px;direction:rtl\\"><h1>المتجر غير متاح حاليًا</h1><p>انتهت صلاحية الترخيص أو أن الترخيص غير نشط. يرجى التواصل مع إدارة المتجر.</p></body></html>", {
+      status: 403,
+      headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store, max-age=0" }
+    });
+  } catch (_) {
+    return new Response("خدمة التحقق من الترخيص غير متاحة مؤقتًا. يرجى المحاولة لاحقًا.", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=UTF-8", "Cache-Control": "no-store, max-age=0" }
+    });
+  }
+}
+`;
+}
+
+async function installLicenseGuard(env, license, workerUrl) {
+  if (!license?.repository) throw new Error("Repository de la boutique introuvable");
+  const owner = String(env.GITHUB_OWNER || "").trim();
+  if (!owner) throw new Error("Variable GITHUB_OWNER manquante");
+  const branch = await getGitHubDefaultBranch(env, owner, license.repository);
+  const result = await putGitHubFile(
+    env,
+    owner,
+    license.repository,
+    "functions/_middleware.js",
+    buildLicenseMiddleware(workerUrl),
+    "StoreMaster: installation de la protection de licence",
+    branch
+  );
+  license.licenseGuard = {
+    installed: true,
+    path: "functions/_middleware.js",
+    branch,
+    installedAt: new Date().toISOString(),
+    commit: result?.commit?.sha || null
+  };
+  license.updatedAt = new Date().toISOString();
+  await saveLicense(env, license);
+  return license.licenseGuard;
+}
+
+async function publicLicenseStatus(request, env) {
+  const url = new URL(request.url);
+  const site = normalizeSite(url.searchParams.get("site") || "");
+  if (!site) return error("Nom de domaine obligatoire", 400);
+  const license = await getLicenseBySite(env, site);
+  if (!license) return success({ licensed: false, status: "not_found", subscriptionPlan: null, subscriptionPrice: null, activationDate: null, expirationDate: null, daysRemaining: null });
+  return success({ ...subscriptionView(license), storeName: license.storeName || "" });
+}
+
+async function installStoreLicenseGuard(request, env) {
+  if (!requireMaster(request, env)) return error("MASTER_API_KEY invalide", 401);
+  let body;
+  try { body = await request.json(); } catch { return error("JSON invalide", 400); }
+  const license = await findLicenseForMasterAction(env, body);
+  if (!license) return error("Boutique introuvable. Fournissez storeId, site ou repository.", 404);
+  const workerUrl = new URL(request.url).origin;
+  try {
+    const guard = await installLicenseGuard(env, license, workerUrl);
+    return success({
+      message: "Protection Cloudflare Pages installée dans le repository. Le déploiement doit se terminer pour qu’elle soit active.",
+      store: { storeId: license.storeId, repository: license.repository, site: license.siteKey },
+      guard
+    });
+  } catch (e) {
+    return error("Impossible d’installer la protection du site", 502, e?.message || String(e));
+  }
+}
+
+async function reactivateStore(request, env) {
+  if (!requireMaster(request, env)) return error("MASTER_API_KEY invalide", 401);
+  let body;
+  try { body = await request.json(); } catch { return error("JSON invalide", 400); }
+  const license = await findLicenseForMasterAction(env, body);
+  if (!license) return error("Boutique introuvable. Fournissez storeId, site ou repository.", 404);
+
+  const subscriptionPlan = String(body.subscriptionPlan || body.planId || license.subscriptionPlan || "6m").trim();
+  const plan = SUBSCRIPTION_PLANS[subscriptionPlan];
+  const activationDate = String(body.activationDate || currentAlgeriaDateISO()).trim();
+  if (!plan) return error("عرض الاشتراك غير صالح. اختر 3m أو 6m أو 12m.", 400);
+  if (!isValidISODate(activationDate)) return error("تاريخ بدء الاشتراك غير صالح. الصيغة المطلوبة YYYY-MM-DD.", 400);
+  const expirationDate = plan.days ? new Date(Date.parse(`${activationDate}T00:00:00.000Z`) + plan.days * 86400000).toISOString().slice(0, 10) : addMonthsISO(activationDate, plan.months);
+  if (body.expirationDate && String(body.expirationDate) !== expirationDate) {
+    return error("تاريخ الانتهاء لا يطابق مدة العرض المختار.", 400, { expectedExpirationDate: expirationDate });
+  }
+  if (isExpired(expirationDate)) return error("تاريخ انتهاء الاشتراك يجب أن يكون في المستقبل.", 400);
+  if (!license.repository || !license.cloudflare?.projectName) {
+    return error("La boutique ne possède pas de repository ou de projet Cloudflare Pages valide.", 409);
+  }
+
+  try {
+    const projectResponse = await getCloudflareProject(env, license.cloudflare.projectName);
+    const project = projectResponse?.result;
+    if (!project) return error("Projet Cloudflare Pages introuvable.", 404);
+    const info = cloudflareInfo(project);
+    const deploymentStatus = String(info.deploymentStatus || "").toLowerCase();
+    const deployed = ["success", "complete", "completed", "active"].includes(deploymentStatus);
+    if (!deployed) {
+      return error("Le site n’est pas encore déployé avec succès. Terminez le déploiement avant la réactivation.", 409, {
+        deploymentStatus: info.deploymentStatus || "unknown"
+      });
+    }
+
+    const workerUrl = new URL(request.url).origin;
+    // Install the Pages guard before marking the licence active.
+    const guard = await installLicenseGuard(env, license, workerUrl);
+    license.subscriptionPlan = subscriptionPlan;
+    license.subscriptionType = "paid";
+    license.trialUsed = true;
+    license.subscriptionName = plan.label;
+    license.subscriptionPrice = plan.price;
+    license.activationDate = activationDate;
+    license.expirationDate = expirationDate;
+    license.status = "active";
+    license.cloudflare = { ...(license.cloudflare || {}), ...info, status: "connected", lastError: null };
+    license.siteUrl = info.url || license.siteUrl;
+    license.lastVerification = new Date().toISOString();
+    license.updatedAt = new Date().toISOString();
+    await saveLicense(env, license);
+
+    return success({
+      message: "Licence réactivée. La protection du site est installée; attendez la fin du déploiement Cloudflare Pages.",
+      store: { storeId: license.storeId, name: license.storeName || "", repository: license.repository, site: license.siteKey },
+      license: { status: license.status, storeId: license.storeId, ...subscriptionView(license) },
+      guard,
+      cloudflare: { projectName: info.projectName, url: info.url, deploymentStatus: info.deploymentStatus }
+    });
+  } catch (e) {
+    return error("Échec de la réactivation", 502, e?.message || String(e));
+  }
 }
 
 /* ---------------- GitHub ---------------- */
@@ -195,6 +436,21 @@ async function getTree(env, owner, repo) {
   throw new Error("Branche du template introuvable");
 }
 
+function githubRepoUrl(owner, repo) {
+  return `https://api.github.com/repos/${encodeURIComponent(String(owner || ""))}/${encodeURIComponent(String(repo || ""))}`;
+}
+
+async function getGitHubDefaultBranch(env, owner, repo) {
+  const url = githubRepoUrl(owner, repo);
+  try {
+    const data = await github(env, url);
+    return String(data?.default_branch || "main").trim() || "main";
+  } catch (e) {
+    const message = e?.message || String(e);
+    throw new Error(`${message} | owner=${owner} | repository=${repo} | url=${url}`);
+  }
+}
+
 async function getGitHubFile(env, owner, repo, path, ref = "main") {
   const encoded = path.split("/").map(encodeURIComponent).join("/");
   return github(
@@ -216,19 +472,20 @@ function encodeBase64Utf8(content) {
   return btoa(binary);
 }
 
-async function putGitHubFile(env, owner, repo, path, content, message) {
+async function putGitHubFile(env, owner, repo, path, content, message, branch = null) {
   const encoded = path.split("/").map(encodeURIComponent).join("/");
+  const targetBranch = String(branch || await getGitHubDefaultBranch(env, owner, repo)).trim() || "main";
   let sha = undefined;
 
   try {
-    const existing = await getGitHubFile(env, owner, repo, path, "main");
+    const existing = await getGitHubFile(env, owner, repo, path, targetBranch);
     sha = existing?.sha;
   } catch (_) {}
 
   const body = {
     message,
     content: encodeBase64Utf8(content),
-    branch: "main"
+    branch: targetBranch
   };
   if (sha) body.sha = sha;
 
@@ -524,8 +781,8 @@ async function login(request, env) {
   }
 
   const license = await getLicenseBySite(env, site);
-  const invalid = validateLicenseObject(license);
-  if (invalid) return error(invalid, 401);
+  if (!license) return error("Boutique introuvable", 401);
+  if (license.status !== "active") return error("Licence inactive ou boutique en cours de déploiement", 401);
 
   const passwordHash = await sha256(password);
   if (!license.tokenHash || passwordHash !== license.tokenHash) {
@@ -538,8 +795,11 @@ async function login(request, env) {
     session: session.token,
     expiresAt: new Date(session.expiresAt).toISOString(),
     storeName: license.storeName || "",
+    clientName: license.client || "",
     repository: license.repository || "",
     githubOwner: env.GITHUB_OWNER || "",
+    subscriptionOnly: isExpired(license.expirationDate),
+    subscription: subscriptionView(license),
     store: {
       storeId: license.storeId,
       repository: license.repository || ""
@@ -605,6 +865,166 @@ async function githubProxy(request, env) {
   }, result.ok ? 200 : result.status);
 }
 
+/* ---------------- Admin template switching ---------------- */
+
+async function adminTemplates(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return error("Requête invalide", 400); }
+  const auth = await authenticateSession(env, body.session);
+  if (!auth.ok) return error(auth.error, 401);
+
+  const currentTemplate = String(auth.license.template || "").trim();
+  return success({
+    currentTemplate,
+    currentTemplateName: TEMPLATES[currentTemplate]?.name || auth.license.templateName || currentTemplate || null,
+    templates: Object.values(TEMPLATES).map(template => ({
+      id: template.id,
+      name: template.name,
+      current: template.id === currentTemplate
+    }))
+  });
+}
+
+async function switchAdminTemplate(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return error("Requête invalide", 400); }
+  const auth = await authenticateSession(env, body.session);
+  if (!auth.ok) return error(auth.error, 401);
+
+  const templateId = String(body.template || body.templateId || "").trim();
+  const template = TEMPLATES[templateId];
+  if (!template) return error("القالب المطلوب غير موجود.", 400);
+
+  const currentTemplate = String(auth.license.template || "").trim();
+  if (templateId === currentTemplate) {
+    return success({
+      switched: false,
+      alreadySelected: true,
+      currentTemplate,
+      template: { id: template.id, name: template.name },
+      message: "هذا القالب هو المستخدم حاليًا."
+    });
+  }
+
+  const owner = String(env.GITHUB_OWNER || "").trim();
+  const repo = String(auth.license.repository || "").trim();
+  if (!owner || !repo) return error("معلومات مستودع المتجر غير مكتملة.", 500);
+
+  let branch = "main";
+  try {
+    branch = await getGitHubDefaultBranch(env, owner, repo);
+    const source = await getTree(env, owner, template.repository);
+    const sourceIndex = await getGitHubFile(env, owner, template.repository, "index.html", source.branch);
+    if (!sourceIndex?.content || sourceIndex.encoding !== "base64") {
+      return error("تعذر قراءة ملف index.html من القالب المختار.", 422, { template: template.id });
+    }
+
+    let content = decodeGitHubBase64(sourceIndex.content);
+    content = content.replaceAll("{{LICENSE_SERVER}}", String(auth.license.workerUrl || new URL(request.url).origin));
+
+    /* Replace only index.html: preserve the customer's assets, admin page,
+       products, configuration, middleware, orders integration and secrets. */
+    await putGitHubFile(
+      env,
+      owner,
+      repo,
+      "index.html",
+      content,
+      `StoreMaster: switch storefront template to ${template.name}`,
+      branch
+    );
+
+    await triggerGitHubDeployment(env, repo);
+
+    auth.license.template = template.id;
+    auth.license.templateName = template.name;
+    auth.license.lastSync = new Date().toISOString();
+    auth.license.updatedAt = auth.license.lastSync;
+    await saveLicense(env, auth.license);
+
+    return success({
+      switched: true,
+      currentTemplate: template.id,
+      currentTemplateName: template.name,
+      template: { id: template.id, name: template.name },
+      previousTemplate: currentTemplate || null,
+      repository: repo,
+      branch,
+      copiedFiles: 1,
+      deploymentTriggered: true,
+      message: "تم تغيير واجهة المتجر وإرسال طلب نشر إلى Cloudflare Pages. قد يستغرق ظهور التصميم الجديد بضع دقائق."
+    });
+  } catch (e) {
+    return error("تعذر إكمال تغيير قالب المتجر.", 502, {
+      template: template.id,
+      repository: repo,
+      branch,
+      partialUpdatePossible: true,
+      message: e?.message || String(e)
+    });
+  }
+}
+
+/* ---------------- Admin session check ---------------- */
+
+async function adminSessionCheck(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return error("Requête invalide", 400); }
+
+  const token = String(body?.session || "").trim();
+  if (!token) return error("Session manquante", 401);
+
+  const auth = await authenticateSession(env, token);
+  if (!auth.ok) return error(auth.error, 401);
+
+  return success({
+    authenticated: true,
+    repository: auth.license.repository || "",
+    githubOwner: env.GITHUB_OWNER || "",
+    expiresAt: auth.session?.expiresAt || null
+  });
+}
+
+/* ---------------- Admin GitHub diagnostic ---------------- */
+
+async function adminGitHubCheck(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return error("Requête invalide", 400); }
+
+  const auth = await authenticateSession(env, body.session);
+  if (!auth.ok) return error(auth.error, 401);
+
+  const owner = String(env.GITHUB_OWNER || "").trim();
+  const repo = String(auth.license.repository || "").trim();
+  const url = githubRepoUrl(owner, repo);
+
+  if (!owner || !repo) {
+    return error("Informations GitHub incomplètes", 500, {
+      step: "validate-repository", owner, repository: repo, url
+    });
+  }
+
+  try {
+    const data = await github(env, url);
+    return success({
+      accessible: true,
+      owner,
+      repository: repo,
+      url,
+      defaultBranch: String(data?.default_branch || "main").trim() || "main",
+      private: data?.private ?? null
+    });
+  } catch (e) {
+    return error("Repository GitHub غير متاح", 502, {
+      step: "github-repository-check",
+      owner,
+      repository: repo,
+      url,
+      message: e?.message || String(e)
+    });
+  }
+}
+
 /* ---------------- Admin config endpoint ---------------- */
 
 async function getAdminConfig(request, env) {
@@ -616,7 +1036,8 @@ async function getAdminConfig(request, env) {
 
   const owner = env.GITHUB_OWNER;
   const repo = auth.license.repository;
-  const file = await getGitHubFile(env, owner, repo, "config/store-config.json", "main");
+  const branch = await getGitHubDefaultBranch(env, owner, repo);
+  const file = await getGitHubFile(env, owner, repo, "config/store-config.json", branch);
 
   if (!file?.content) return error("Fichier config/store-config.json introuvable", 404);
 
@@ -635,8 +1056,159 @@ async function getAdminConfig(request, env) {
     config,
     repository: repo,
     githubOwner: owner,
-    path: "config/store-config.json"
+    path: "config/store-config.json",
+    branch
   });
+}
+
+/* ---------------- Admin config save ---------------- */
+
+async function saveAdminConfig(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return error("Requête invalide", 400); }
+
+  const auth = await authenticateSession(env, body.session);
+  if (!auth.ok) return error(auth.error, 401);
+
+  /* Lightweight probe: lets the browser verify the exact save route before
+     sending the complete configuration payload. */
+  if (body.probe === true) {
+    return success({ saveEndpoint: true, authenticated: true });
+  }
+
+  if (!body.config || typeof body.config !== "object" || Array.isArray(body.config)) {
+    return error("Configuration invalide", 400);
+  }
+
+  const owner = env.GITHUB_OWNER;
+  const repo = auth.license.repository;
+  let branch;
+  try {
+    branch = await getGitHubDefaultBranch(env, owner, repo);
+  } catch (e) {
+    return error("Impossible de déterminer la branche GitHub", 502, {
+      step: "get-default-branch",
+      owner,
+      repository: repo,
+      url: githubRepoUrl(owner, repo),
+      message: e?.message || String(e)
+    });
+  }
+  const jsonContent = JSON.stringify(body.config, null, 2);
+  const configJsContent = `// =============================================================================
+// ⚙️ ملف الإعدادات الرئيسي للمتجر
+// =============================================================================
+
+const STORE_CONFIG = ${JSON.stringify(body.config, null, 2)};
+
+// =============================================================================
+// 🛍️ دالة تحميل المنتجات
+// =============================================================================
+
+function loadProductsConfig() {
+    return STORE_CONFIG.PRODUCTS;
+}
+
+// =============================================================================
+// 🚚 دالة تحميل أسعار التوصيل
+// =============================================================================
+
+function loadDeliveryConfig() {
+    return {
+        deliveryPrices: STORE_CONFIG.DELIVERY_PRICES || {},
+        freeDelivery: STORE_CONFIG.FREE_DELIVERY || {},
+        freeDeliveryProducts: STORE_CONFIG.FREE_DELIVERY.freeDeliveryProducts || []
+    };
+}
+
+// =============================================================================
+// 💰 دالة تحميل إعدادات الخصم
+// =============================================================================
+
+function loadDiscountConfig() {
+    return STORE_CONFIG.DISCOUNTS || {};
+}
+
+// =============================================================================
+// 🏪 دالة تحميل معلومات المتجر
+// =============================================================================
+
+function loadStoreInfo() {
+    return STORE_CONFIG.STORE_INFO || {};
+}
+
+// =============================================================================
+// 🎨 دالة تحميل الألوان والمقاسات
+// =============================================================================
+
+function loadSizesColorsConfig() {
+    return {
+        availableColors: STORE_CONFIG.AVAILABLE_COLORS || [],
+        availableSizes: STORE_CONFIG.AVAILABLE_SIZES || [],
+        sizeGuide: STORE_CONFIG.SIZE_GUIDE || {}
+    };
+}
+
+// =============================================================================
+// 📊 دالة تحميل إعدادات البكسل
+// =============================================================================
+
+function loadPixelConfig() {
+    return STORE_CONFIG.PIXEL_CODES || {};
+}
+
+// =============================================================================
+// 📊 دالة تحميل جميع الإعدادات
+// =============================================================================
+
+function loadAllConfig() {
+    return STORE_CONFIG;
+}
+
+// =============================================================================
+// 🔄 دالة تحديث الإعدادات
+// =============================================================================
+
+function updateConfig(newConfig) {
+    for (const key in newConfig) {
+        if (newConfig.hasOwnProperty(key)) {
+            STORE_CONFIG[key] = newConfig[key];
+        }
+    }
+    return STORE_CONFIG;
+}
+`;
+  const message = String(body.message || `Mise à jour des configurations - ${new Date().toISOString()}`).slice(0, 200);
+
+  try {
+    const jsonResult = await putGitHubFile(env, owner, repo, "config/store-config.json", jsonContent, message, branch);
+    const jsResult = await putGitHubFile(env, owner, repo, "config.js", configJsContent, message, branch);
+    auth.license.lastSync = new Date().toISOString();
+    auth.license.updatedAt = auth.license.lastSync;
+    await saveLicense(env, auth.license);
+
+    return success({
+      saved: true,
+      repository: repo,
+      githubOwner: owner,
+      branch,
+      files: {
+        storeConfig: { path: "config/store-config.json", sha: jsonResult?.content?.sha || null },
+        configJs: { path: "config.js", sha: jsResult?.content?.sha || null }
+      },
+      commit: jsResult?.commit?.sha || jsonResult?.commit?.sha || null
+    });
+  } catch (e) {
+    return error("Échec de la synchronisation GitHub", 502, {
+      step: "put-github-file",
+      owner,
+      repository: repo,
+      url: githubRepoUrl(owner, repo),
+      message: e?.message || String(e),
+      branch,
+      paths: ["config/store-config.json", "config.js"]
+    });
+  }
 }
 
 /* ---------------- Store creation ---------------- */
@@ -654,7 +1226,32 @@ async function createStore(request, env) {
   const storeName = String(body.storeName || body.nomBoutique || "").trim().replace(/\s+/g, " ");
   const repository = normalizeRepo(body.repository || body.repositoryName);
   const templateId = String(body.template || body.templateId || "").trim();
-  const expirationDate = body.expirationDate || body.dateExpiration || null;
+  const subscriptionPlan = String(body.subscriptionPlan || body.planId || "6m").trim();
+  const plan = SUBSCRIPTION_PLANS[subscriptionPlan];
+  const activationDate = String(body.activationDate || currentAlgeriaDateISO()).trim();
+  if (!plan) return error("عرض الاشتراك غير صالح. اختر 3m أو 6m أو 12m.", 400);
+  if (!isValidISODate(activationDate)) return error("تاريخ التفعيل غير صالح. الصيغة المطلوبة YYYY-MM-DD.", 400);
+  const expirationDate = plan.days ? addDaysISO(activationDate, plan.days) : addMonthsISO(activationDate, plan.months);
+  if (body.expirationDate && String(body.expirationDate) !== expirationDate) {
+    return error("تاريخ الانتهاء لا يطابق مدة العرض المختار.", 400, { expectedExpirationDate: expirationDate });
+  }
+
+  if (subscriptionPlan === "trial") {
+    const clientKey = client.trim().toLowerCase();
+    if (!clientKey) return error("اسم العميل مطلوب لتسجيل الفترة التجريبية.", 400);
+    let cursor;
+    do {
+      const page = await env.LICENSES.list({ prefix: "license:", cursor });
+      for (const key of page.keys || []) {
+        const prior = await getLicense(env, key.name.slice("license:".length));
+        if (prior && String(prior.client || "").trim().toLowerCase() === clientKey &&
+            (prior.trialUsed === true || prior.subscriptionPlan === "trial")) {
+          return error("استُخدمت الفترة التجريبية المجانية لهذا العميل من قبل. اختر باقة مدفوعة.", 409);
+        }
+      }
+      cursor = page.list_complete ? undefined : page.cursor;
+    } while (cursor);
+  }
 
   if (!storeName) return error("Nom boutique obligatoire");
   if (!repository) return error("Nom repository obligatoire");
@@ -681,7 +1278,16 @@ async function createStore(request, env) {
     storeName,
     repository,
     siteKey: requestedSite,
+    workerUrl,
     template: template.id,
+    subscriptionPlan,
+    subscriptionName: plan.label,
+    subscriptionPrice: plan.price,
+    subscriptionType: subscriptionPlan === "trial" ? "trial" : "paid",
+    trialUsed: subscriptionPlan === "trial",
+    trialStartDate: subscriptionPlan === "trial" ? activationDate : null,
+    trialEndDate: subscriptionPlan === "trial" ? expirationDate : null,
+    activationDate,
     expirationDate,
     status: "creating",
     tokenHash: await sha256(adminPassword),
@@ -721,6 +1327,9 @@ async function createStore(request, env) {
       repository,
       { storeName, workerUrl }
     );
+
+    // Protect static Pages HTML and assets, not only API calls.
+    await installLicenseGuard(env, license, workerUrl);
 
     project = await getCloudflareProjectOrNull(env, projectName);
     if (!project) {
@@ -778,8 +1387,8 @@ async function createStore(request, env) {
           identifiers: { adminPassword },
           license: {
             status: license.status,
-            expirationDate: license.expirationDate,
-            storeId
+            storeId,
+            ...subscriptionView(license)
           },
           github: {
             repository,
@@ -834,8 +1443,8 @@ async function createStore(request, env) {
       identifiers: { adminPassword },
       license: {
         status: license.status,
-        expirationDate: license.expirationDate,
-        storeId
+        storeId,
+        ...subscriptionView(license)
       },
       github: {
         repository,
@@ -877,122 +1486,6 @@ async function createStore(request, env) {
         status: license.cloudflare.status,
         error: license.cloudflare.lastError
       }
-    });
-  }
-}
-
-
-/* ---------------- Admin template switching ---------------- */
-
-async function adminTemplates(request, env) {
-  let body;
-  try { body = await request.json(); } catch { return error("Requête invalide", 400); }
-
-  const auth = await authenticateSession(env, body.session);
-  if (!auth.ok) return error(auth.error, 401);
-
-  return success({
-    currentTemplate: auth.license.template || "template1",
-    templates: Object.values(TEMPLATES).map(t => ({ id: t.id, name: t.name }))
-  });
-}
-
-async function adminTemplateSwitch(request, env) {
-  let body;
-  try { body = await request.json(); } catch { return error("Requête invalide", 400); }
-
-  const auth = await authenticateSession(env, body.session);
-  if (!auth.ok) return error(auth.error, 401);
-
-  const templateId = String(body.template || body.templateId || "").trim();
-  const template = TEMPLATES[templateId];
-  if (!template) return error("القالب المطلوب غير موجود.", 400);
-
-  const license = auth.license;
-  const owner = env.GITHUB_OWNER;
-  const targetRepo = normalizeRepo(license.repository);
-  if (!targetRepo) return error("اسم مستودع المتجر غير صالح.", 400);
-
-  if (license.template === templateId) {
-    return success({
-      message: "هذا القالب معتمد بالفعل.",
-      currentTemplate: templateId,
-      deploymentTriggered: false
-    });
-  }
-
-  try {
-    /* Copy the template's storefront and static assets, while preserving store data and its admin panel. */
-    const sourceTree = await getTree(env, owner, template.repository);
-    const sourceFiles = (sourceTree.tree || []).filter(item => item.type === "blob");
-    const hasIndex = sourceFiles.some(item => item.path === "index.html");
-    if (!hasIndex) return error(`القالب ${template.name} لا يحتوي على index.html.`, 404);
-
-    const protectedPaths = new Set([
-      "adm.html",
-      "config.js",
-      "config/store-config.json",
-      ".storemaster-deploy.json",
-      "README.md",
-      "LICENSE",
-      "LICENSE.md",
-      "manifest.json",
-      "service-worker.js",
-      "sw.js",
-      "wrangler.toml",
-      "wrangler.json",
-      "wrangler.jsonc",
-      "worker.js",
-      "_worker.js"
-    ]);
-    let copiedFiles = 0;
-    for (const item of sourceFiles) {
-      const path = String(item.path || "");
-      if (protectedPaths.has(path)) continue;
-      if (path.startsWith(".github/") || path.startsWith("functions/")) continue;
-      if (/^(?:config\/store-config\.json|config\.js)$/i.test(path)) continue;
-
-      const sourceFile = await getGitHubFile(env, owner, template.repository, path, sourceTree.branch);
-      if (!sourceFile?.content) {
-        throw new Error(`تعذر قراءة ملف القالب: ${path}`);
-      }
-      const content = decodeGitHubBase64(sourceFile.content);
-      await putGitHubFile(
-        env,
-        owner,
-        targetRepo,
-        path,
-        content,
-        `StoreMaster: تطبيق ${template.name} — ${path}`
-      );
-      copiedFiles++;
-    }
-
-    /* Trigger deployment after the storefront files/assets are committed. */
-    await triggerGitHubDeployment(env, targetRepo);
-
-    license.template = templateId;
-    license.lastSync = new Date().toISOString();
-    license.updatedAt = license.lastSync;
-    if (license.cloudflare) {
-      license.cloudflare.status = "deployment_pending";
-      license.cloudflare.lastError = null;
-    }
-    await saveLicense(env, license);
-
-    return success({
-      message: `تم اعتماد قالب ${template.name} وحفظه بنجاح.`,
-      note: "تم استبدال index.html فقط. إذا كان القالب الجديد يحتاج ملفات إضافية غير مضمّنة داخله، فيجب توفيرها في المستودع قبل اعتماده.",
-      currentTemplate: templateId,
-      templateName: template.name,
-      deploymentTriggered: true,
-      copiedFiles,
-      repository: targetRepo
-    });
-  } catch (e) {
-    console.error("Admin template switch failed", e?.message || String(e));
-    return error("تعذر تغيير القالب أو إطلاق النشر.", 500, {
-      message: e?.message || String(e)
     });
   }
 }
@@ -1078,6 +1571,8 @@ async function adminOrders(request, env) {
     storeKey,
     storeId: auth.license.storeId,
     filters: body.filters || {},
+    page: Math.max(1, Number(body.page) || 1),
+    pageSize: Math.min(100, Math.max(10, Number(body.pageSize) || 50)),
     orderId: body.orderId || "",
     status: body.status || "",
     note: body.note || ""
@@ -1087,10 +1582,11 @@ async function adminOrders(request, env) {
   return success(result);
 }
 
-
 /* ---------------- Checkout Analytics bridge ---------------- */
 
 const CHECKOUT_EVENTS = new Set([
+  "store_home_view",
+  "product_view",
   "begin_checkout",
   "wilaya_selected",
   "delivery_selected",
@@ -1112,6 +1608,17 @@ async function checkoutEvents(request, env) {
   const sessionId = String(body.sessionId || "").trim();
   if (!CHECKOUT_EVENTS.has(event)) return error("Événement Checkout invalide", 400);
   if (!sessionId) return error("Session Checkout obligatoire", 400);
+  // نحافظ على بيانات المنتجات المرتبطة بالجلسة حتى تظهر أيضًا في Checkout غير المكتمل.
+  const rawItems = Array.isArray(body.items) ? body.items : [];
+  const items = rawItems.slice(0,30).map((it) => ({
+    name: String(it?.name || it?.productName || it?.title || "منتج").slice(0,160),
+    quantity: Math.max(1, Math.min(999, Number(it?.quantity) || 1)),
+    price: Number(it?.price) || 0,
+    finalPrice: Number(it?.finalPrice ?? it?.price) || 0,
+    size: String(it?.size || "").slice(0,50),
+    color: String(it?.color || "").slice(0,80),
+    productId: String(it?.productId || it?.id || "").slice(0,100)
+  }));
   const safe = {
     event,
     sessionId: sessionId.slice(0,120),
@@ -1123,7 +1630,8 @@ async function checkoutEvents(request, env) {
     field: String(body.field || "").slice(0,50),
     cartCount: Number(body.cartCount || 0),
     cartValue: Number(body.cartValue || 0),
-    total: Number(body.total || 0)
+    total: Number(body.total || 0),
+    items
   };
   const result = await callOrdersScript(env, {
     action: "recordCheckoutEvent",
@@ -1219,172 +1727,6 @@ function health(env) {
   };
 }
 
-
-
-/* ---------------- Direct Dynamic Shipping API ---------------- */
-
-/*
- * IMPORTANT:
- * No courier company, courier URL, API key format, or provider adapter is
- * hard-coded here. The authenticated admin supplies the company name and API
- * URL at runtime. Worker only validates the URL, adds the requested auth
- * header, and forwards the request directly to that URL.
- */
-function directShippingConfig(body){
-  const c=body?.config&&typeof body.config==='object'?body.config:{};
-  const companyName=String(c.companyName||'').trim();
-  const apiUrl=String(c.apiUrl||'').trim();
-  const authType=String(body?.credentials?.authType||c.authType||'bearer').trim().toLowerCase();
-  const authValue=String(body?.credentials?.authValue||'').trim();
-  if(!companyName) throw new Error('اسم شركة التوصيل مطلوب');
-  if(!apiUrl) throw new Error('عنوان API الشركة مطلوب');
-  let url;
-  try{url=new URL(apiUrl)}catch{throw new Error('عنوان API غير صالح')}
-  if(url.protocol!=='https:') throw new Error('يجب أن يبدأ عنوان API بـ HTTPS');
-  if(!url.hostname) throw new Error('اسم خادم API غير صالح');
-  return {companyName,apiUrl:url.toString(),authType,authValue,testUrl:String(c.testUrl||'').trim(),createMethod:String(c.createMethod||'POST').toUpperCase(),createTemplate:String(c.createTemplate||'')};
-}
-function directAuthHeaders(c){
-  const h={'Accept':'application/json','Content-Type':'application/json'};
-  if(!c.authValue||c.authType==='none') return h;
-  if(c.authType==='bearer') h.Authorization=`Bearer ${c.authValue}`;
-  else if(c.authType==='apikey') h['X-API-Key']=c.authValue;
-  else if(c.authType==='basic') h.Authorization=`Basic ${btoa(c.authValue)}`;
-  else throw new Error('نوع المصادقة غير مدعوم');
-  return h;
-}
-async function directFetch(url,options={}){
-  const target=new URL(url);
-  if(target.protocol!=='https:') throw new Error('الاتصال المباشر يسمح فقط بـ HTTPS');
-  const response=await fetch(target.toString(),{redirect:'follow',...options,headers:{...(options.headers||{}),'User-Agent':'StoreMaster-Direct-Shipping/1.0'}});
-  const text=await response.text();
-  let data;
-  try{data=text?JSON.parse(text):{}}catch{data={raw:text}};
-  if(!response.ok) throw Object.assign(new Error(data?.message||data?.error||`HTTP ${response.status}`),{status:response.status,data});
-  return data;
-}
-function directOrderData(o,body){
-  const fullName=String(o.customerName||o.name||o.customer||'').trim();
-  const items=Array.isArray(o.items)?o.items:[];
-  const product=items.map(i=>`${String(i.name||i.productName||'Produit').slice(0,100)} x${Number(i.quantity||1)}`).join(', ').slice(0,500)||'Produit';
-  return {
-    orderId:String(o.orderId||o.id||o.requestId||''),
-    customerName:fullName,
-    phone:String(o.phone||o.customerPhone||'').trim(),
-    address:String(o.address||o.customerAddress||'').trim(),
-    wilaya:String(o.wilaya||o.wilayaName||'').trim(),
-    wilayaCode:String(o.wilayaCode||o.wilayaId||'').trim(),
-    commune:String(o.commune||o.customerCommune||o.daira||'').trim(),
-    total:Number(body.codAmount||o.total||0)||0,
-    deliveryType:String(o.deliveryType||'home').toLowerCase(),
-    fromWilaya:String(body.fromWilaya||'').trim(),
-    product,
-    quantity:items.reduce((n,i)=>n+Number(i.quantity||1),0)||1,
-    items
-  };
-}
-function directTemplateValue(template,d){
-  return String(template||'').replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,(_,k)=>{
-    const v=d[k];
-    return v==null?'':String(v);
-  });
-}
-function directPayload(c,d){
-  if(!c.createTemplate) return d;
-  const raw=directTemplateValue(c.createTemplate,d);
-  try{return JSON.parse(raw)}catch{throw new Error('قالب JSON الخاص بالشحنة غير صالح')}
-}
-function directTrackingUrl(c,tracking){
-  const u=new URL(c.apiUrl);
-  u.searchParams.set('tracking',String(tracking));
-  return u.toString();
-}
-async function directShipping(request,env,operation){
-  let body;
-  try{body=await request.json()}catch{return error('Requête Shipping invalide',400)}
-  const auth=await authenticateSession(env,body.session);
-  if(!auth.ok)return error(auth.error,401);
-  let c;
-  try{c=directShippingConfig(body)}catch(e){return error(e.message||String(e),400)}
-  const headers=directAuthHeaders(c);
-
-  if(operation==='test'){
-    const testUrl=c.testUrl?new URL(c.testUrl).toString():c.apiUrl;
-    try{
-      await directFetch(testUrl,{method:'GET',headers:{...headers,'Content-Type':'application/json'}});
-      return success({message:`اتصال مباشر ناجح مع ${c.companyName}`,companyName:c.companyName,apiUrl:c.apiUrl});
-    }catch(e){return error(`فشل الاتصال المباشر مع ${c.companyName}: ${e.message||String(e)}`,502)}
-  }
-
-  if(operation==='create'){
-    const orders=Array.isArray(body.orders)?body.orders.slice(0,100):[];
-    if(!orders.length)return error('لا توجد طلبات للشحن',400);
-    const results=[];
-    for(const o of orders){
-      const d=directOrderData(o,body);
-      try{
-        const payload=directPayload(c,d);
-        const data=await directFetch(c.apiUrl,{method:c.createMethod==='PUT'?'PUT':'POST',headers,body:JSON.stringify(payload)});
-        const tracking=data?.tracking||data?.trackingNumber||data?.Tracking||data?.data?.tracking||data?.data?.trackingNumber||data?.Colis?.[0]?.Tracking||null;
-        results.push({orderId:d.orderId,ok:true,tracking,data});
-      }catch(e){results.push({orderId:d.orderId,ok:false,error:e.message||String(e)})}
-    }
-    return success({message:`تم إرسال الشحنات مباشرة إلى ${c.companyName}`,companyName:c.companyName,results});
-  }
-
-  if(operation==='track'){
-    const tracking=Array.isArray(body.tracking)?body.tracking.slice(0,100):[];
-    if(!tracking.length)return error('لا توجد أرقام تتبع',400);
-    const results=[];
-    for(const t of tracking){
-      try{const data=await directFetch(directTrackingUrl(c,t),{method:'GET',headers});results.push({trackingNumber:t,ok:true,data})}
-      catch(e){results.push({trackingNumber:t,ok:false,error:e.message||String(e)})}
-    }
-    return success({message:`تم جلب التتبع مباشرة من ${c.companyName}`,companyName:c.companyName,results});
-  }
-  return error('عملية Shipping غير مدعومة',400);
-}
-
-
-/* ---------------- NOVA SHOWROOM AI Assistant ---------------- */
-async function novaAiAssistant(request, env) {
-  if (!env.OPENAI_API_KEY) return error("مساعد الذكاء الاصطناعي غير مفعّل: أضف OPENAI_API_KEY إلى أسرار Worker", 503);
-  if (!env.LICENSES) return error("KV binding LICENSES manquant", 500);
-  let body;
-  try { body = await request.json(); } catch { return error("JSON غير صالح", 400); }
-  const message = String(body?.message || "").trim().slice(0, 1000);
-  if (!message) return error("اكتب سؤالك أولًا", 400);
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const now = Math.floor(Date.now() / 60000);
-  const rateKey = `nova-ai-rate:${await sha256(ip)}:${now}`;
-  const used = Number(await env.LICENSES.get(rateKey) || 0);
-  if (used >= 12) return error("وصلت إلى الحد المؤقت للمحادثات. حاول بعد دقيقة.", 429);
-  await env.LICENSES.put(rateKey, String(used + 1), { expirationTtl: 120 });
-
-  const store = body?.store && typeof body.store === "object" ? body.store : {};
-  const products = Array.isArray(store.products) ? store.products.slice(0, 30).map(x => String(x).slice(0, 350)) : [];
-  const history = Array.isArray(body.history) ? body.history.slice(-8).map(m => ({
-    role: m?.role === "assistant" ? "assistant" : "user",
-    content: String(m?.content || "").slice(0, 1000)
-  })).filter(m => m.content) : [];
-  const system = `أنت مساعد التسوق الرسمي لمتجر NOVA SHOWROOM. أجب بلغة العميل (العربية أو الفرنسية) وبأسلوب لبق ومختصر. ساعد في فهم المنتجات والاختيار. لا تخترع أسماء منتجات أو أسعارًا أو مخزونًا أو خصومات أو سياسات توصيل. استخدم فقط بيانات المنتجات المتاحة في سياق الصفحة؛ إذا لم تتوفر معلومة فقل بوضوح إنها غير ظاهرة ووجّه العميل إلى بطاقة المنتج أو التواصل مع المتجر. لا تطلب بيانات الدفع أو كلمات المرور أو معلومات حساسة. لا تؤكد إنشاء طلب أو تعديل بيانات المتجر؛ أنت مساعد معلومات فقط. المنتجات الظاهرة في الصفحة (قد تكون مقتطفات نصية وليست الكتالوج الكامل):\n${products.length ? products.map((x,i)=>`${i+1}. ${x}`).join("\n") : "لا توجد تفاصيل منتجات موثوقة مرفقة بهذا الطلب."}`;
-  const model = String(env.OPENAI_MODEL || "gpt-4o-mini").trim().slice(0, 80);
-  const payload = { model, messages: [{ role: "system", content: system }, ...history, { role: "user", content: message }], temperature: 0.4, max_tokens: 450 };
-  const upstream = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const result = await upstream.json().catch(() => ({}));
-  if (!upstream.ok) {
-    console.error("NOVA AI provider error", upstream.status, result?.error?.type || "unknown");
-    return error("تعذر الحصول على إجابة من المساعد الآن. حاول لاحقًا.", 502);
-  }
-  const answer = String(result?.choices?.[0]?.message?.content || "").trim();
-  if (!answer) return error("لم تصل إجابة صالحة من المساعد", 502);
-  return success({ answer, model, usage: result.usage || null });
-}
-
 /* ---------------- Router ---------------- */
 
 export default {
@@ -1403,20 +1745,15 @@ export default {
       }
 
       if (!env.LICENSES) return error("KV binding LICENSES manquant", 500);
+      if (method === "GET" && path === "/api/store/license-status") {
+        return publicLicenseStatus(request, env);
+      }
+
       if (!env.GITHUB_OWNER) return error("Variable GITHUB_OWNER manquante", 500);
       if (!env.GITHUB_TOKEN) return error("Secret GITHUB_TOKEN manquant", 500);
 
-      if (method === "POST" && path === "/api/ai/assistant") {
-        return novaAiAssistant(request, env);
-      }
-
-
       if (method === "POST" && path === "/api/admin/login") {
         return login(request, env);
-      }
-
-      if (method === "POST" && path === "/api/admin/config") {
-        return getAdminConfig(request, env);
       }
 
       if (method === "POST" && path === "/api/admin/templates") {
@@ -1424,7 +1761,23 @@ export default {
       }
 
       if (method === "POST" && path === "/api/admin/template-switch") {
-        return adminTemplateSwitch(request, env);
+        return switchAdminTemplate(request, env);
+      }
+
+      if (method === "POST" && path === "/api/admin/session-check") {
+        return adminSessionCheck(request, env);
+      }
+
+      if (method === "POST" && path === "/api/admin/github-check") {
+        return adminGitHubCheck(request, env);
+      }
+
+      if (method === "POST" && path === "/api/admin/config") {
+        return getAdminConfig(request, env);
+      }
+
+      if (method === "POST" && path === "/api/admin/config/save") {
+        return saveAdminConfig(request, env);
       }
 
       if (method === "POST" && path === "/api/orders") {
@@ -1442,16 +1795,6 @@ export default {
       if (method === "POST" && path === "/api/admin/orders") {
         return adminOrders(request, env);
       }
-      if (method === "POST" && path === "/api/shipping/direct/test") {
-        return directShipping(request, env, "test");
-      }
-      if (method === "POST" && path === "/api/shipping/direct/create") {
-        return directShipping(request, env, "create");
-      }
-      if (method === "POST" && path === "/api/shipping/direct/track") {
-        return directShipping(request, env, "track");
-      }
-
 
       if (method === "POST" && path === "/api/github/proxy") {
         return githubProxy(request, env);
@@ -1459,6 +1802,14 @@ export default {
 
       if (method === "POST" && path === "/api/store/create") {
         return createStore(request, env);
+      }
+
+      if (method === "POST" && path === "/api/store/reactivate") {
+        return reactivateStore(request, env);
+      }
+
+      if (method === "POST" && path === "/api/store/install-guard") {
+        return installStoreLicenseGuard(request, env);
       }
 
       if ((method === "GET" || method === "POST") && path === "/api/cloudflare/status") {
@@ -1471,4 +1822,3 @@ export default {
     }
   }
 };
-
