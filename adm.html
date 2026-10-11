@@ -2411,6 +2411,18 @@
         #subscription .subscription-price-card { direction: rtl; }
 
         /* بطاقة اشتراك StoreMaster */
+        /* شارة صغيرة لصلاحية المتجر في الصفحة الرئيسية */
+        .dashboard-home-heading-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;direction:rtl}
+        .dashboard-home-heading-top h2{margin:0}
+        .home-validity-badge{display:inline-flex;align-items:center;justify-content:center;gap:8px;max-width:100%;padding:8px 13px;border:1px solid #b7e4c7;border-radius:999px;background:#eafaf0;color:#176b3a;font-family:inherit;font-size:13px;font-weight:800;line-height:1.5;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;direction:rtl;text-align:right}
+        .home-validity-badge:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+        .home-validity-badge.warning{background:#fff3d6;border-color:#f4b942;color:#8a5200;animation:homeValidityPulse 1.15s ease-in-out infinite}
+        .home-validity-badge.expired{background:#ffe8e6;border-color:#ef9a9a;color:#a61e1e}
+        .home-validity-badge.unknown{background:#f1f3f5;border-color:#d8dee4;color:#495057}
+        @keyframes homeValidityPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.12)}50%{box-shadow:0 0 0 5px rgba(245,158,11,.2)}}
+        @media(prefers-reduced-motion:reduce){.home-validity-badge.warning{animation:none}}
+        @media(max-width:600px){.dashboard-home-heading-top{align-items:flex-start}.home-validity-badge{font-size:12px;padding:7px 10px}}
+
         .subscription-state-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;box-shadow:var(--shadow);color:var(--gray)}
         .subscription-summary-card{display:flex;align-items:center;gap:18px;padding:24px;border-radius:18px;background:linear-gradient(135deg,#1a1b2e,#3a0ca3);color:#fff;box-shadow:var(--shadow-lg);margin-bottom:20px}
         .subscription-summary-icon{width:64px;height:64px;flex:0 0 64px;border-radius:18px;background:rgba(255,255,255,.13);display:grid;place-items:center;font-size:28px;color:#fff}
@@ -2461,7 +2473,32 @@
         @media(max-width:900px){.store-template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media(max-width:560px){.store-template-grid{grid-template-columns:1fr}.template-current-card{align-items:flex-start}.store-template-card p{min-height:0}}
 
-</style>
+
+        /* تحسين نصوص الاشتراك والتنبيه: أسود واتجاه عربي من اليمين إلى اليسار */
+        #subscription .subscription-footnote,
+        #subscription .subscription-pricing-reference > p,
+        .template-switch-footer,
+        .template-switch-footer *,
+        .store-template-message {
+            color: #000 !important;
+            direction: rtl !important;
+            text-align: right !important;
+            unicode-bidi: plaintext;
+        }
+        .template-switch-footer {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .store-template-message {
+            direction: rtl !important;
+            text-align: right !important;
+            white-space: pre-line;
+        }
+
+    </style>
 
 <style id="mobile-full-height-modals">
 @media (max-width: 768px) {
@@ -3197,8 +3234,13 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
             <main class="main-content">
                 <!-- الصفحة الرئيسية -->
                 <div id="dashboard-home" class="tab-content active">
-                    <div class="content-header">
-                        <h2><i class="fas fa-tachometer-alt"></i> نظرة عامة</h2>
+                    <div class="content-header dashboard-home-heading">
+                        <div class="dashboard-home-heading-top">
+                            <h2><i class="fas fa-tachometer-alt"></i> نظرة عامة</h2>
+                            <button type="button" id="homeValidityBadge" class="home-validity-badge" onclick="switchTab('subscription')" title="عرض تفاصيل اشتراك المتجر">
+                                <i class="fas fa-hourglass-half"></i><span id="homeValidityText">مدة الصلاحية: جارٍ التحقق...</span>
+                            </button>
+                        </div>
                         <p>مرحبا بك في لوحة إنشاء المتجر الالكتروني و التحكم فيه ، هنا يمكنك إنشاء وإدارة جميع جوانب متجرك.</p>
                     </div>
                     
@@ -3669,7 +3711,7 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                     <div id="storeTemplateMessage" class="store-template-message" role="status" aria-live="polite" style="display:none"></div>
                     <div class="template-switch-footer">
                         <i class="fas fa-info-circle"></i>
-                        <span>لا تُغلق الصفحة أثناء تنفيذ التغيير. قد يستغرق ظهور التصميم الجديد بضع دقائق حتى يكتمل نشر Cloudflare Pages.</span>
+                        <span>لا تُغلق الصفحة أثناء تنفيذ التغيير. قد يستغرق ظهور التصميم الجديد بضع دقائق حتى يكتمل النشر عبر السرفر.</span>
                     </div>
                 </div>
 
@@ -7651,7 +7693,7 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                 <div class="action-card" style="margin-bottom:20px;">
                     <h3><i class="fas fa-shield-alt"></i> الاتصال الآمن بالسيرفر</h3>
                     <p style="margin:10px 0 18px;color:var(--gray);">
-                        الاتصال والمزامنة وتحميل الإعدادات ورفع الصور تتم عبر StoreMaster Worker باستخدام بيانات الاعتماد المحفوظة في Cloudflare.
+                        الاتصال والمزامنة وتحميل الإعدادات ورفع الصور تتم عبر StoreMaster Worker باستخدام بيانات الاعتماد المحفوظة في السرفر.
                     </p>
                     <div style="padding:15px;background:var(--light);border-radius:var(--radius);line-height:2.2;">
                         <div><strong>الحالة:</strong> ${connected ? 'متصل وآمن ✅' : 'غير متصل ⚠️'}</div>
@@ -10181,6 +10223,23 @@ function activeTab(){
 let __smSubscriptionCache = null;
 let __smSubscriptionPromise = null;
 let __smSubscriptionFetchedAt = 0;
+function updateHomeValidityBadge(d){
+  const badge=document.getElementById('homeValidityBadge');
+  const label=document.getElementById('homeValidityText');
+  if(!badge||!label||!d)return;
+  badge.className='home-validity-badge';
+  const raw=d.daysRemaining;
+  if(d.status==='not_found'||raw===null||raw===undefined||raw===''||!Number.isFinite(Number(raw))){
+    badge.classList.add('unknown'); label.textContent='مدة الصلاحية: غير متاحة'; badge.title='تعذر تحديد مدة الصلاحية'; return;
+  }
+  const days=Number(raw);
+  if(d.expired||days<0||!d.licensed){
+    badge.classList.add('expired'); label.textContent=days<0?'انتهت الصلاحية منذ '+Math.abs(days)+' يوم':'انتهت صلاحية المتجر'; badge.title='اضغط لعرض تفاصيل الاشتراك'; return;
+  }
+  if(days<7){badge.classList.add('warning');}
+  label.textContent=days===0?'الصلاحية: تنتهي اليوم':days===1?'الصلاحية: يوم واحد متبقٍ':'الصلاحية: '+days+' يومًا متبقيًا';
+  badge.title='اضغط لعرض تفاصيل الاشتراك';
+}
 async function loadSubscriptionPanel(forceRefresh=false){
   const loading=document.getElementById('subscriptionLoading');
   const content=document.getElementById('subscriptionContent');
@@ -10198,6 +10257,7 @@ async function loadSubscriptionPanel(forceRefresh=false){
     if(!__smSubscriptionCache)return false;
     // Re-render from the cached response without another HTTP request.
     const d=__smSubscriptionCache;
+    updateHomeValidityBadge(d);
     const planMap={'trial':'شهر تجريبي مجاني','3m':'3 أشهر','6m':'6 أشهر','12m':'12 شهرًا'};
     const priceMap={'trial':0,'3m':3000,'6m':5000,'12m':9000};
     const plan=d.subscriptionName||planMap[d.subscriptionPlan]||'غير مسجل';
@@ -10272,6 +10332,7 @@ async function loadSubscriptionPanel(forceRefresh=false){
     }
     if (!response.ok || data.success !== true) throw new Error(data.error || ('تعذر تحميل بيانات الاشتراك (HTTP ' + response.status + ').'));
     data.__host=host; __smSubscriptionCache=data; __smSubscriptionFetchedAt=Date.now();
+    updateHomeValidityBadge(data);
     const planMap={'trial':'شهر تجريبي مجاني','3m':'3 أشهر','6m':'6 أشهر','12m':'12 شهرًا'};
     const priceMap={'trial':0,'3m':3000,'6m':5000,'12m':9000};
     const plan=data.subscriptionName||planMap[data.subscriptionPlan]||'غير مسجل';
@@ -11274,7 +11335,7 @@ window.caClearSessionDateFilter=function(){
   window.switchStoreTemplate=async function(templateId,templateName){
     if(templateState.busy)return;
     if(templateId===templateState.current)return;
-    const confirmed=window.confirm("هل تريد اعتماد القالب «"+templateName+"» لهذا المتجر؟\n\nسيتم تحديث index.html فقط ثم تشغيل نشر Cloudflare Pages. ستبقى إعدادات المتجر والمنتجات والطلبات دون تغيير.");
+    const confirmed=window.confirm("هل تريد اعتماد القالب «"+templateName+"» لهذا المتجر؟\n\nسيتم تحديث index.html فقط ثم تشغيل النشر عبر السرفر. ستبقى إعدادات المتجر والمنتجات والطلبات دون تغيير.");
     if(!confirmed)return;
     templateState.busy=true;
     const message=el("storeTemplateMessage");
@@ -11286,7 +11347,7 @@ window.caClearSessionDateFilter=function(){
       const current=el("currentStoreTemplate"),status=el("currentStoreTemplateStatus");
       const currentObj=templateState.choices.find(t=>t.id===templateState.current);
       if(current)current.textContent=currentObj?(currentObj.name||currentObj.id):templateName;
-      if(status)status.textContent=data.deploymentTriggered?"تم إرسال طلب النشر إلى Cloudflare Pages.":"تم حفظ القالب؛ تحقق من حالة النشر.";
+      if(status)status.textContent=data.deploymentTriggered?"تم إرسال طلب النشر إلى السرفر.":"تم حفظ القالب؛ تحقق من حالة النشر.";
       notifyTemplate((data.message||"تم اعتماد القالب الجديد.")+"\n"+(data.note||"قد يستغرق ظهور التصميم الجديد بضع دقائق."),"success");
     }catch(err){
       notifyTemplate(err.message||"فشل تغيير القالب. لم يتم تأكيد التغيير.","error");
