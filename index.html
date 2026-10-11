@@ -14008,7 +14008,7 @@ header .header-content{min-height:68px!important}
   intro.innerHTML='<div class="nova-eyebrow"><span class="nova-live-dot"></span> YOUR NEXT FAVORITE</div><h2>اكتشف ما يشبهك.<br><em>اختر أسلوبك.</em></h2><p>تجربة تتغيّر مع نوع المنتج: اكتشف القطعة، استكشف تفاصيلها، ثم أكمل طلبك بخطوات واضحة.</p><div class="nova-chip-row" id="novaCategoryFilters" aria-label="تصفية المنتجات"></div>';
   const tools=section.querySelector('.product-tools');if(tools)section.insertBefore(intro,tools);else section.appendChild(intro);
   const counts={all:cards.length};cards.forEach(c=>{const t=c.dataset.novaType||'other';counts[t]=(counts[t]||0)+1});
-  const filters=[['all','الكل',counts.all],...Object.keys(TYPES).filter(t=>counts[t]).map(t=>[t,TYPES[t].label,counts[t]])];
+  const filters=[['all','الكل',counts.all],...Object.keys(TYPES).filter(t=>t!=='clothing'&&counts[t]).map(t=>[t,TYPES[t].label,counts[t]])];
   const row=intro.querySelector('#novaCategoryFilters');filters.forEach(([type,label,count],idx)=>{const b=document.createElement('button');b.type='button';b.className='nova-chip'+(idx===0?' active':'');b.dataset.type=type;b.setAttribute('aria-pressed',idx===0?'true':'false');b.textContent=label+'  ·  '+count;b.addEventListener('click',()=>setCategory(type));row.appendChild(b)});
  }
  let activeType='all';
