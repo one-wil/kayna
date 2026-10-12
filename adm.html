@@ -2499,28 +2499,24 @@
         }
 
     
-        /* أيقونات التواصل في قسم «من نحن» — أيقونات فقط دون تغيير النصوص الحالية */
-        .about-support-numbers .about-contact-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px;
-            height: 38px;
-            margin: 5px 6px 8px;
-            border-radius: 50%;
-            text-decoration: none;
-            font-size: 23px;
-            line-height: 1;
-            transition: transform .2s ease, box-shadow .2s ease;
-            vertical-align: middle;
-        }
-        .about-support-numbers .about-contact-icon:hover {
-            transform: translateY(-2px) scale(1.06);
-            box-shadow: 0 4px 12px rgba(0,0,0,.16);
-        }
-        .about-support-numbers .whatsapp-contact-icon { color: #fff; background: #25D366; }
-        .about-support-numbers .telegram-contact-icon { color: #fff; background: #229ED9; }
-</style>
+        /* بطاقات اتصال الدعم: الرقم في الأعلى والأيقونة تحته */
+        .about-support-numbers .about-contact-person { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:9px; min-width:185px; padding:12px 14px; border-radius:16px; background:rgba(255,255,255,.07); }
+        .about-support-numbers .about-phone-number { justify-content:center; white-space:nowrap; }
+        .about-support-numbers .about-contact-icon { display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; margin:2px 0 0; border:2px solid rgba(255,255,255,.7); border-radius:50%; color:#fff!important; text-decoration:none; font-size:32px; line-height:1; box-shadow:0 5px 16px rgba(0,0,0,.22); transition:transform .2s ease,box-shadow .2s ease; }
+        .about-support-numbers .about-contact-icon:hover { transform:translateY(-3px) scale(1.08); box-shadow:0 7px 20px rgba(0,0,0,.3); }
+        .about-support-numbers .whatsapp-contact-icon { background:#25D366; }
+        .about-support-numbers .telegram-contact-icon { background:#229ED9; }
+        .subscription-contact-footer { margin:34px 0 10px; padding:24px 20px; border-radius:20px; background:linear-gradient(135deg,#171a2e,#29345b); color:#fff; box-shadow:0 12px 28px rgba(23,26,46,.2); text-align:center; direction:rtl; }
+        .subscription-contact-footer h3 { margin:0 0 6px; font-size:21px; font-weight:800; }
+        .subscription-contact-footer p { margin:0 0 18px; color:rgba(255,255,255,.78); }
+        .subscription-contact-options { display:flex; justify-content:center; align-items:stretch; flex-wrap:wrap; gap:16px; }
+        .subscription-contact-option { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; min-width:210px; padding:16px 22px; border:1px solid rgba(255,255,255,.18); border-radius:16px; background:rgba(255,255,255,.08); color:#fff; text-decoration:none; font-weight:800; direction:ltr; transition:transform .2s ease,background .2s ease; }
+        .subscription-contact-option .contact-large-icon { display:flex; align-items:center; justify-content:center; width:60px; height:60px; border-radius:50%; color:#fff; font-size:38px; border:2px solid rgba(255,255,255,.75); box-shadow:0 5px 16px rgba(0,0,0,.2); }
+        .subscription-contact-option.whatsapp-option .contact-large-icon { background:#25D366; }
+        .subscription-contact-option.telegram-option .contact-large-icon { background:#229ED9; }
+        .subscription-contact-option:hover { transform:translateY(-3px); background:rgba(255,255,255,.14); }
+        @media (max-width:700px) { .about-support-numbers .about-contact-person { width:100%; } .subscription-contact-footer { padding:22px 14px; } .subscription-contact-option { width:100%; min-width:0; } }
+        </style>
 
 <style id="mobile-full-height-modals">
 @media (max-width: 768px) {
@@ -3778,14 +3774,14 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                             <div class="about-support-title">contacter support</div>
                             <div class="about-support-subtitle">للتواصل مع فريق الدعم</div>
                             <div class="about-support-numbers">
-                                <a href="tel:0551102155"><i class="fas fa-phone-alt"></i> 0551102155</a>
-                                <a href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" class="about-contact-icon telegram-contact-icon" aria-label="التواصل عبر تيليغرام مع 0551102155" title="Telegram">
-                                    <i class="fab fa-telegram-plane"></i>
-                                </a>
-                                <a href="tel:0671466489"><i class="fas fa-phone-alt"></i> 0671466489</a>
-                                <a href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" class="about-contact-icon whatsapp-contact-icon" aria-label="التواصل عبر واتساب مع 0671466489" title="WhatsApp">
-                                    <i class="fab fa-whatsapp"></i>
-                                </a>
+                                <div class="about-contact-person">
+                                    <a class="about-phone-number" href="tel:0551102155"><i class="fas fa-phone-alt"></i> 0551 102 155</a>
+                                    <a href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" class="about-contact-icon telegram-contact-icon" aria-label="التواصل عبر تيليغرام مع 0551 102 155" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+                                </div>
+                                <div class="about-contact-person">
+                                    <a class="about-phone-number" href="tel:0671466489"><i class="fas fa-phone-alt"></i> 0671 466 489</a>
+                                    <a href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" class="about-contact-icon whatsapp-contact-icon" aria-label="التواصل عبر واتساب مع 0671 466 489" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3819,6 +3815,14 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                                 <div class="subscription-price-card" data-plan="12m"><span>12 شهرًا</span><strong>9000 دج</strong></div>
                             </div>
                             <p class="subscription-footnote">يتم اختيار العرض وتجديد الاشتراك من إدارة STOREMASTER فقط. هذا القسم مخصص لعرض بيانات اشتراك متجرك.</p>
+                        </div>
+                    </div>
+                    <div class="subscription-contact-footer">
+                        <h3><i class="fas fa-headset"></i> التواصل مع الدعم</h3>
+                        <p>نحن هنا لمساعدتك — اختر وسيلة التواصل المناسبة</p>
+                        <div class="subscription-contact-options">
+                            <a class="subscription-contact-option whatsapp-option" href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" aria-label="واتساب 0671 466 489"><span>0671 466 489</span><span class="contact-large-icon"><i class="fab fa-whatsapp"></i></span></a>
+                            <a class="subscription-contact-option telegram-option" href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" aria-label="تيليغرام 0551 102 155"><span>0551 102 155</span><span class="contact-large-icon"><i class="fab fa-telegram-plane"></i></span></a>
                         </div>
                     </div>
                 </div>
