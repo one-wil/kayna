@@ -2513,6 +2513,65 @@
         .about-support-numbers .about-contact-icon:hover { transform:translateY(-3px) scale(1.08); box-shadow:0 7px 20px rgba(0,0,0,.3); }
         .about-support-numbers .whatsapp-contact-icon { background:#25D366; }
         .about-support-numbers .telegram-contact-icon { background:#229ED9; }
+
+
+        /* بطاقة الدعم في تبويب «من نحن»: الأرقام جنبًا إلى جنب ثم الأيقونات */
+        .about-subscription-contact .about-contact-layout {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:14px;
+            width:100%;
+            margin-top:18px;
+        }
+        .about-subscription-contact .about-contact-phones,
+        .about-subscription-contact .about-contact-social {
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:16px;
+            width:100%;
+            flex-wrap:wrap;
+        }
+        .about-subscription-contact .about-contact-phone {
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-width:210px;
+            padding:12px 18px;
+            border:1px solid rgba(255,255,255,.14);
+            border-radius:14px;
+            background:rgba(255,255,255,.09);
+            color:#fff;
+            font-weight:800;
+            font-size:clamp(16px,2.2vw,22px);
+            text-decoration:none;
+            direction:ltr;
+            transition:transform .2s ease, background .2s ease;
+        }
+        .about-subscription-contact .about-contact-phone:hover {
+            transform:translateY(-2px);
+            background:rgba(255,255,255,.15);
+        }
+        .about-subscription-contact .about-contact-social .subscription-contact-option {
+            min-width:0;
+            width:100px;
+            min-height:92px;
+            padding:10px;
+            background:transparent;
+            box-shadow:none;
+            border:0;
+        }
+        .about-subscription-contact .about-contact-social .contact-large-icon {
+            width:60px;
+            height:60px;
+            font-size:38px;
+        }
+        @media (max-width:600px) {
+            .about-subscription-contact .about-contact-phones,
+            .about-subscription-contact .about-contact-social { gap:10px; }
+            .about-subscription-contact .about-contact-phone { min-width:0; flex:1 1 145px; padding:10px 8px; font-size:15px; }
+        }
         .subscription-contact-footer { margin:34px 0 10px; padding:24px 20px; border-radius:20px; background:linear-gradient(135deg,#171a2e,#29345b); color:#fff; box-shadow:0 12px 28px rgba(23,26,46,.2); text-align:center; direction:rtl; }
         .subscription-contact-footer h3 { margin:0 0 6px; font-size:21px; font-weight:800; }
         .subscription-contact-footer p { margin:0 0 18px; color:rgba(255,255,255,.78); }
@@ -3779,9 +3838,15 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                     <div class="subscription-contact-footer about-subscription-contact">
                         <h3><i class="fas fa-headset"></i> contacter support</h3>
                         <p>للتواصل مع فريق الدعم — اختر وسيلة التواصل المناسبة</p>
-                        <div class="subscription-contact-options">
-                            <a class="subscription-contact-option whatsapp-option" href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" aria-label="واتساب 0671 466 489"><span>0671 466 489</span><span class="contact-large-icon"><i class="fab fa-whatsapp"></i></span></a>
-                            <a class="subscription-contact-option telegram-option" href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" aria-label="تيليغرام 0551 102 155"><span>0551 102 155</span><span class="contact-large-icon"><i class="fab fa-telegram-plane"></i></span></a>
+                        <div class="about-contact-layout">
+                            <div class="about-contact-phones" aria-label="أرقام الهاتف">
+                                <a class="about-contact-phone" href="tel:0671466489">0671 466 489</a>
+                                <a class="about-contact-phone" href="tel:0551102155">0551 102 155</a>
+                            </div>
+                            <div class="about-contact-social" aria-label="وسائل التواصل الاجتماعي">
+                                <a class="subscription-contact-option whatsapp-option" href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" aria-label="واتساب 0671 466 489"><span class="contact-large-icon"><i class="fab fa-whatsapp"></i></span></a>
+                                <a class="subscription-contact-option telegram-option" href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" aria-label="تيليغرام 0551 102 155"><span class="contact-large-icon"><i class="fab fa-telegram-plane"></i></span></a>
+                            </div>
                         </div>
                     </div>
                 </div>
