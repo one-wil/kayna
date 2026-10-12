@@ -543,10 +543,13 @@ const STORE_CONFIG = {
       "minQuantity": 2
     },
     "home": {
-      "enabled": false,
+      "enabled": true,
       "minAmount": 0,
-      "wilayas": [],
-      "minQuantity": 2
+      "wilayas": [
+        "01 - أدرار",
+        "02 - الشلف"
+      ],
+      "minQuantity": null
     },
     "freeDeliveryProducts": [
       1765137505304,
