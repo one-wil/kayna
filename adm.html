@@ -2523,6 +2523,7 @@
         .subscription-contact-option.telegram-option .contact-large-icon { background:#229ED9; }
         .subscription-contact-option:hover { transform:translateY(-3px); background:rgba(255,255,255,.14); }
         @media (max-width:700px) { .about-support-numbers .about-contact-person { width:100%; } .subscription-contact-footer { padding:22px 14px; } .subscription-contact-option { width:100%; min-width:0; } }
+        .about-subscription-contact { max-width: 900px; margin: 30px auto 20px; }
         </style>
 
 <style id="mobile-full-height-modals">
@@ -3775,21 +3776,12 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                     </div>
 
                     <!-- لوحة التواصل مع الدعم -->
-                    <div class="about-support-card">
-                        <div class="about-support-icon"><i class="fas fa-headset"></i></div>
-                        <div class="about-support-content">
-                            <div class="about-support-title">contacter support</div>
-                            <div class="about-support-subtitle">للتواصل مع فريق الدعم</div>
-                            <div class="about-support-numbers">
-                                <div class="about-contact-person">
-                                    <a class="about-phone-number" href="tel:0551102155"><i class="fas fa-phone-alt"></i> 0551 102 155</a>
-                                    <a href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" class="about-contact-icon telegram-contact-icon" aria-label="التواصل عبر تيليغرام مع 0551 102 155" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
-                                </div>
-                                <div class="about-contact-person">
-                                    <a class="about-phone-number" href="tel:0671466489"><i class="fas fa-phone-alt"></i> 0671 466 489</a>
-                                    <a href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" class="about-contact-icon whatsapp-contact-icon" aria-label="التواصل عبر واتساب مع 0671 466 489" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                                </div>
-                            </div>
+                    <div class="subscription-contact-footer about-subscription-contact">
+                        <h3><i class="fas fa-headset"></i> contacter support</h3>
+                        <p>للتواصل مع فريق الدعم — اختر وسيلة التواصل المناسبة</p>
+                        <div class="subscription-contact-options">
+                            <a class="subscription-contact-option whatsapp-option" href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" aria-label="واتساب 0671 466 489"><span>0671 466 489</span><span class="contact-large-icon"><i class="fab fa-whatsapp"></i></span></a>
+                            <a class="subscription-contact-option telegram-option" href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" aria-label="تيليغرام 0551 102 155"><span>0551 102 155</span><span class="contact-large-icon"><i class="fab fa-telegram-plane"></i></span></a>
                         </div>
                     </div>
                 </div>
