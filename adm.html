@@ -2446,7 +2446,7 @@
          .subscription-payment-details{display:grid;gap:12px;margin-top:18px;padding:16px;border:1px solid rgba(67,97,238,.18);border-radius:16px;background:linear-gradient(135deg,#f8faff,#eef8ff);direction:rtl}
 .payment-manager-row,.payment-rip-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:#fff;border:1px solid #e4eaf5;border-radius:12px}
 .payment-manager-row>span,.payment-rip-row>span{color:#4b587c;font-weight:700;display:flex;align-items:center;gap:7px}
-.payment-manager-row strong{margin-right:auto;color:#18234a;font-size:16px}
+.payment-manager-row strong{margin-right:auto;color:#18234a;font-size:16px}\n.payment-manager-row .subscription-owner-prefix{color:#53658c;font-weight:700;display:inline-flex;align-items:center}
 .payment-rip-row strong{margin-right:auto;color:#172554;font-size:16px;letter-spacing:.5px}
 .payment-rip-row .rip-account-holder{flex:0 0 100%;width:100%;order:10;margin-top:5px;padding:10px 12px;border-radius:9px;background:linear-gradient(90deg,#eef4ff,#f7faff);border:1px solid #dce7ff;color:#243b75;font-size:14px;font-weight:800;letter-spacing:.15px;text-align:left;direction:ltr}
 .payment-rip-row .rip-account-holder i{color:#4361ee;margin-right:6px}
@@ -3903,10 +3903,12 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                                 <div class="subscription-price-card" data-plan="12m"><span>12 شهرًا</span><strong>9000 دج</strong></div>
                             </div>
                             <div class="subscription-payment-details" aria-label="بيانات المدير وطرق الدفع">
-                                <div class="payment-manager-row">
-                                    <span><i class="fas fa-user-tie"></i> اسم ولقب المدير</span>
+                                <div class="payment-manager-row" aria-label="مدير العلامة التجارية وصاحب المتجر">
+                                    <span><i class="fas fa-store"></i> مدير العلامة التجارية</span>
+                                    <strong id="subscriptionBrandName">العلامة التجارية</strong>
+                                    <span class="subscription-owner-prefix">السيد</span>
                                     <strong id="subscriptionManagerName">مدير المتجر</strong>
-                                    <button type="button" class="copy-payment-btn" onclick="copySubscriptionValue('subscriptionManagerName',this)" aria-label="نسخ اسم ولقب المدير" title="نسخ الاسم واللقب"><i class="fas fa-copy"></i></button>
+                                    <button type="button" class="copy-payment-btn" onclick="copySubscriptionValue('subscriptionManagerName',this)" aria-label="نسخ اسم ولقب مدير المتجر" title="نسخ اسم مدير المتجر"><i class="fas fa-copy"></i></button>
                                 </div>
                                 <div class="payment-methods-row">
                                     <span class="payment-method-chip"><i class="fas fa-check-circle"></i> BaridiMob <b>مفعّل</b></span>
@@ -4442,10 +4444,21 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
             const avatarEl = document.getElementById('storeOwnerAvatar');
 
             if (nameEl) nameEl.textContent = ownerName;
-            // اسم الاشتراك هو اسم مدير المتجر الحالي، وليس مدير فريق StoreMaster.
+            // في بيانات الاشتراك: اسم العلامة التجارية + اسم مدير المتجر.
+            // اسم صاحب حساب RIP يبقى مستقلاً عن مدير المتجر.
             const subscriptionManagerNameEl = document.getElementById('subscriptionManagerName');
             if (subscriptionManagerNameEl && ownerName) {
                 subscriptionManagerNameEl.textContent = ownerName;
+            }
+            const subscriptionBrandNameEl = document.getElementById('subscriptionBrandName');
+            const brandName = String(
+                auth.storeName ||
+                auth.store?.name ||
+                (typeof CONFIG !== 'undefined' && CONFIG.STORE_INFO && CONFIG.STORE_INFO.name) ||
+                ''
+            ).trim();
+            if (subscriptionBrandNameEl && brandName) {
+                subscriptionBrandNameEl.textContent = brandName;
             }
             if (roleEl) roleEl.textContent = 'المدير';
 
