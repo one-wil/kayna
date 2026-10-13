@@ -2443,13 +2443,37 @@
         .subscription-pricing-reference{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
         .subscription-pricing-reference h3{margin:0 0 16px}.subscription-pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
         .subscription-price-card{border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;background:#f8f9ff}.subscription-price-card span{display:block;color:var(--gray);font-size:13px;margin-bottom:7px}.subscription-price-card strong{font-size:19px;color:var(--dark)}.subscription-price-card.selected{border:2px solid var(--primary);background:#eef1ff;box-shadow:0 0 0 3px rgba(67,97,238,.08)}
-        .subscription-footnote{margin-top:16px;color:var(--gray);font-size:13px;line-height:1.8}.subscription-alert{padding:15px 18px;border-radius:12px;margin-bottom:18px;font-weight:700;line-height:1.8;background:#fff4d7;color:#875b00;border-right:5px solid #f8961e}.subscription-alert.danger{background:#ffe8e6;color:#a61e4d;border-right-color:#d90429}.subscription-alert.success{background:#e6f7ed;color:#16824b;border-right-color:#16824b}
+         .subscription-payment-details{display:grid;gap:12px;margin-top:18px;padding:16px;border:1px solid rgba(67,97,238,.18);border-radius:16px;background:linear-gradient(135deg,#f8faff,#eef8ff);direction:rtl}
+.payment-manager-row,.payment-rip-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:#fff;border:1px solid #e4eaf5;border-radius:12px}
+.payment-manager-row>span,.payment-rip-row>span{color:#4b587c;font-weight:700;display:flex;align-items:center;gap:7px}
+.payment-manager-row strong{margin-right:auto;color:#18234a;font-size:16px}
+.payment-rip-row strong{margin-right:auto;color:#172554;font-size:16px;letter-spacing:.5px}
+.payment-rip-row .rip-account-holder{flex:0 0 100%;width:100%;order:10;margin-top:5px;padding:10px 12px;border-radius:9px;background:linear-gradient(90deg,#eef4ff,#f7faff);border:1px solid #dce7ff;color:#243b75;font-size:14px;font-weight:800;letter-spacing:.15px;text-align:left;direction:ltr}
+.payment-rip-row .rip-account-holder i{color:#4361ee;margin-right:6px}
+.payment-rip-row .rip-account-holder span{font-weight:600;color:#53658c}
+
+.copy-payment-btn{width:38px;height:38px;flex:0 0 38px;border:0;border-radius:10px;background:linear-gradient(135deg,#4361ee,#4895ef);color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(67,97,238,.2);transition:transform .2s,box-shadow .2s}
+.copy-payment-btn:active{transform:scale(.92)}
+.payment-methods-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.payment-method-chip{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:12px 8px;border-radius:12px;background:#eafaf2;border:1px solid #b7ebce;color:#087443;font-weight:800}
+.payment-method-chip>i{font-size:18px;color:#16a765}
+.payment-method-chip b{font-size:11px;background:#16a765;color:#fff;padding:3px 7px;border-radius:20px}
+.subscription-contact-footer>p{line-height:1.9}
+@media(max-width:480px){.payment-manager-row,.payment-rip-row{gap:8px;padding:10px}.payment-manager-row strong,.payment-rip-row strong{font-size:13px}.payment-methods-row{gap:7px}.payment-method-chip{font-size:12px}}
+.subscription-footnote{margin-top:16px;color:var(--gray);font-size:13px;line-height:1.8}.subscription-alert{padding:15px 18px;border-radius:12px;margin-bottom:18px;font-weight:700;line-height:1.8;background:#fff4d7;color:#875b00;border-right:5px solid #f8961e}.subscription-alert.danger{background:#ffe8e6;color:#a61e4d;border-right-color:#d90429}.subscription-alert.success{background:#e6f7ed;color:#16824b;border-right-color:#16824b}
         @media(max-width:600px){.subscription-summary-card{align-items:flex-start;padding:17px}.subscription-summary-icon{width:48px;height:48px;flex-basis:48px;font-size:21px}.subscription-summary-main h3{font-size:19px}.subscription-pricing-grid{grid-template-columns:1fr}.subscription-detail strong{font-size:16px}}
 
         /* StoreMaster: اختيار وتغيير قالب المتجر */
         .template-switch-menu-item{position:relative}
         .template-switch-menu-item::after{content:"جديد";position:absolute;left:10px;top:9px;font-size:9px;font-weight:900;color:#111;background:#ffd54a;border-radius:999px;padding:2px 6px}
-        .template-switch-notice{display:flex;align-items:flex-start;gap:13px;padding:16px 18px;border-radius:16px;border:1px solid rgba(76,201,240,.25);background:linear-gradient(135deg,rgba(67,97,238,.13),rgba(76,201,240,.06));margin:18px 0;color:var(--dark)}
+        .store-template-card{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.store-template-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(35,55,110,.13)}
+.store-template-card button{min-height:44px;position:relative;overflow:hidden}
+.store-template-card button:disabled{opacity:.8;cursor:wait}
+.template-switch-loading{background:linear-gradient(110deg,#4361ee,#7209b7,#4361ee)!important;background-size:200% 100%!important;animation:templateButtonShimmer 1.4s linear infinite}
+.template-spinner{width:17px;height:17px;border-width:2px;vertical-align:middle;margin-inline-end:7px}
+@keyframes templateButtonShimmer{to{background-position:-200% 0}}
+.template-switch-notice{display:flex;align-items:flex-start;gap:13px;padding:16px 18px;border-radius:16px;border:1px solid rgba(76,201,240,.25);background:linear-gradient(135deg,rgba(67,97,238,.13),rgba(76,201,240,.06));margin:18px 0;color:var(--dark)}
         .template-switch-notice>i{font-size:23px;color:#4cc9f0;margin-top:2px}
         .template-switch-notice strong{display:block;font-size:15px;margin-bottom:4px}
         .template-switch-notice p{font-size:12px;line-height:1.8;opacity:.88}
@@ -3878,12 +3902,28 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
                                 <div class="subscription-price-card" data-plan="6m"><span>6 أشهر</span><strong>5000 دج</strong></div>
                                 <div class="subscription-price-card" data-plan="12m"><span>12 شهرًا</span><strong>9000 دج</strong></div>
                             </div>
-                            <p class="subscription-footnote">يتم اختيار العرض وتجديد الاشتراك من إدارة STOREMASTER فقط. هذا القسم مخصص لعرض بيانات اشتراك متجرك.</p>
+                            <div class="subscription-payment-details" aria-label="بيانات المدير وطرق الدفع">
+                                <div class="payment-manager-row">
+                                    <span><i class="fas fa-user-tie"></i> اسم ولقب المدير</span>
+                                    <strong id="subscriptionManagerName">مدير المتجر</strong>
+                                    <button type="button" class="copy-payment-btn" onclick="copySubscriptionValue('subscriptionManagerName',this)" aria-label="نسخ اسم ولقب المدير" title="نسخ الاسم واللقب"><i class="fas fa-copy"></i></button>
+                                </div>
+                                <div class="payment-methods-row">
+                                    <span class="payment-method-chip"><i class="fas fa-check-circle"></i> BaridiMob <b>مفعّل</b></span>
+                                    <span class="payment-method-chip"><i class="fas fa-check-circle"></i> CCP <b>مفعّل</b></span>
+                                </div>
+                                <div class="payment-rip-row">
+                                    <span><i class="fas fa-university"></i> رقم RIP</span>
+                                    <strong id="subscriptionRIP" dir="ltr">00799999000648007251</strong>
+                                    <button type="button" class="copy-payment-btn" onclick="copySubscriptionValue('subscriptionRIP',this)" aria-label="نسخ رقم RIP" title="نسخ رقم RIP"><i class="fas fa-copy"></i></button>
+                                    <div class="rip-account-holder" dir="ltr"><i class="fas fa-id-card"></i> BENAKRAB Ahcene <span>(manager StoreMaster team)</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="subscription-contact-footer">
                         <h3><i class="fas fa-headset"></i> التواصل مع الدعم</h3>
-                        <p>نحن هنا لمساعدتك — اختر وسيلة التواصل المناسبة</p>
+                        <p>اختر وسيلة الدفع واختر وسيلة التواصل لإثبات الدفع (PDF، لقطة شاشة، وصل CCP أو أي إثبات واضح للتحويل).</p>
                         <div class="subscription-contact-options">
                             <a class="subscription-contact-option whatsapp-option" href="https://wa.me/213671466489" target="_blank" rel="noopener noreferrer" aria-label="واتساب 0671 466 489"><span>0671 466 489</span><span class="contact-large-icon"><i class="fab fa-whatsapp"></i></span></a>
                             <a class="subscription-contact-option telegram-option" href="https://t.me/+213551102155" target="_blank" rel="noopener noreferrer" aria-label="تيليغرام 0551 102 155"><span>0551 102 155</span><span class="contact-large-icon"><i class="fab fa-telegram-plane"></i></span></a>
@@ -4402,6 +4442,11 @@ input:focus, textarea:focus, select:focus, [contenteditable="true"]:focus, [cont
             const avatarEl = document.getElementById('storeOwnerAvatar');
 
             if (nameEl) nameEl.textContent = ownerName;
+            // اسم الاشتراك هو اسم مدير المتجر الحالي، وليس مدير فريق StoreMaster.
+            const subscriptionManagerNameEl = document.getElementById('subscriptionManagerName');
+            if (subscriptionManagerNameEl && ownerName) {
+                subscriptionManagerNameEl.textContent = ownerName;
+            }
             if (roleEl) roleEl.textContent = 'المدير';
 
             if (avatarEl) {
@@ -10472,6 +10517,23 @@ async function loadSubscriptionPanel(forceRefresh=false){
   try{return await __smSubscriptionPromise;}finally{clearTimeout(__smLoadingWatchdog);__smSubscriptionPromise=null;}
 }
 
+window.copySubscriptionValue = async function(elementId, button){
+  const node=document.getElementById(elementId);
+  if(!node)return;
+  const value=(node.textContent||"").trim();
+  try{
+    await navigator.clipboard.writeText(value);
+    const old=button?button.innerHTML:"";
+    if(button){button.innerHTML='<i class="fas fa-check"></i>';button.classList.add("copied");}
+    if(typeof notify==="function")notify("تم النسخ بنجاح.","success");
+    if(button)setTimeout(()=>{button.innerHTML=old;button.classList.remove("copied");},1400);
+  }catch(e){
+    const area=document.createElement("textarea");area.value=value;area.style.position="fixed";area.style.opacity="0";document.body.appendChild(area);area.select();
+    const ok=document.execCommand("copy");area.remove();
+    if(typeof notify==="function")notify(ok?"تم النسخ بنجاح.":"تعذر النسخ تلقائيًا، يرجى نسخ النص يدويًا.",ok?"success":"warning");
+  }
+};
+
 // Expose the subscription loader: it is defined inside this IIFE, but the dashboard
 // initialization and switchTab handlers call it from outside this scope.
 window.loadSubscriptionPanel = loadSubscriptionPanel;
@@ -11401,8 +11463,8 @@ window.caClearSessionDateFilter=function(){
           <div><h3>${name}</h3><div class="template-id">${escapeTemplateText(id)}</div></div>
         </div>
         <p>${description}</p>
-        <button type="button" class="btn ${current?"btn-info":"btn-primary"}" ${current||templateState.busy?"disabled":""} onclick="switchStoreTemplate('${escapeTemplateText(id)}','${name.replace(/'/g,"&#39;")}')">
-          <i class="fas ${current?"fa-check":"fa-swatchbook"}"></i> ${current?"القالب الحالي":"اعتماد هذا القالب"}
+        <button type="button" class="btn ${current?"btn-info":"btn-primary"} ${templateState.busy&&!current?"template-switch-loading":""}" ${current||templateState.busy?"disabled":""} onclick="switchStoreTemplate('${escapeTemplateText(id)}','${name.replace(/'/g,"&#39;")}')">
+          ${templateState.busy&&!current?'<span class="loading template-spinner"></span> جارٍ تطبيق القالب…':`<i class="fas ${current?"fa-check":"fa-swatchbook"}"></i> ${current?"القالب الحالي":"اعتماد هذا القالب"}`}
         </button>
       </article>`;
     }).join("");
